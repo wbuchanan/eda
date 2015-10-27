@@ -1,0 +1,39 @@
+d 'EDA': a program for automated exploratory data analysis
+d
+d eda is a program used for automated exploratory data analysis.  
+d
+d KW: Exploratory Data Analysis
+d KW: Data Visualization
+d KW: Graphs
+d KW: Scheme files
+d KW: Color
+d
+d Requires: Stata version 14
+d
+d Distribution-Date: 20151027
+d
+d Author: Billy Buchanan 
+d		  Data Scientist
+d		  Office of Research, Evaluation, and Assessment
+d		  Minneapolis Public Schools
+d Support: email William [dot] Buchanan @t mpls [dot] k12 [dot] mn [dot] us
+d
+f catorcont.ado
+f eda.ado
+f eda.sthlp
+f edabar.ado
+f edabox.ado
+f edabubble.ado
+f edadistro.ado
+f edaentry.ado
+f edaheat.ado
+f edahist.ado
+f edaladder.ado
+f edamosaic.ado
+f edapie.ado
+f edascat.ado
+f grlabsplit.ado
+f maketexcomp.ado
+f progcheck.ado
+f texclean.ado
+f dirfile.ado

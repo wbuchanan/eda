@@ -1,0 +1,1 @@
+../../t/texclean/texclean.ado
