@@ -32,7 +32,7 @@ prog def edabubble
 	marksample touse
 
 	// Add section header to LaTeX file
-	file write doc "\subsubsection{Weighted Scatterplots (Bubble Plots)}" _n
+	file write doc "\subsubsection{Bubble Plots}" _n
 
 	// Generate list of all pairwise combination of continuous variables
 	tuples `varlist', asis min(3) max(3)		
@@ -89,9 +89,9 @@ prog def edabubble
 		loc zref `r(clntex)'
 		
 		// Add the scatterplot to the LaTeX document
-		file write doc "\begin{figure}" _n
+		file write doc "\begin{figure}[h!]" _n
 		file write doc `"\caption{Bubble Plot of `yref', `xref', and `zref' \label{fig:bubble`i'}}"' _n
-		file write doc `"\includegraphics{bubble`i'.pdf}"' _n
+		file write doc `"\includegraphics[width=\textwidth]{bubble`i'.pdf}"' _n
 		file write doc "\end{figure} \newpage\clearpage" _n
 		
 	} // End Loop over bubble plot permutations

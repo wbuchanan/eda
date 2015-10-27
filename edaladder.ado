@@ -33,6 +33,9 @@ prog def edaladder
 	// Mark only the observations to use
 	marksample touse
 
+	// Add subheading to the LaTeX file
+	file write doc "\subsubsection{Ladder of Powers Transformation Graphs} \newpage\clearpage" _n
+
 	// Loop over continuous variables
 	foreach v of var `varlist' {
 	
@@ -57,7 +60,7 @@ prog def edaladder
 		loc vref `r(clntex)'
 		
 		// Get a LaTeX cleaned title string
-		texclean "`: char `v'[title]'"
+		texclean `"`: char `v'[title]'"'
 		
 		// Store the string in the local macro vlab
 		loc vlab `r(clntex)'
@@ -66,13 +69,13 @@ prog def edaladder
 		loc vlab : subinstr loc vlab `"""' "", all
 				
 		// Add the graph to the LaTeX file
-		file write doc "\begin{figure}" _n
+		file write doc "\begin{figure}[h!]" _n
 		file write doc `"\caption{`vlab' Ladder of Powers Histograms \label{fig:gladder`vref'}}"' _n
-		file write doc `"\includegraphics{gladder`v'.pdf}"' _n
+		file write doc `"\includegraphics[width=\textwidth]{gladder`v'.pdf}"' _n
 		file write doc "\end{figure} \newpage\clearpage" _n
-		file write doc "\begin{figure}" _n
+		file write doc "\begin{figure}[h!]" _n
 		file write doc `"\caption{`vlab' Ladder of Powers Quantile Normal Plots \label{fig:qladder`vref'}}"' _n
-		file write doc `"\includegraphics{qladder`v'.pdf}"' _n
+		file write doc `"\includegraphics[width=\textwidth]{qladder`v'.pdf}"' _n
 		file write doc "\end{figure} \newpage\clearpage" _n
 		
 		// Check if user wants to keep the GPH files

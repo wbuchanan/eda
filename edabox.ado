@@ -34,7 +34,7 @@ prog def edabox
 	// Set up a counter macro
 	loc boxcount = 0
 
-	file write doc "\subsubsection{Conditional Distributions of Continuous Variables}" _n
+	file write doc "\subsubsection{Box Plots}" _n
 
 	// Loop over all the categorical variables
 	foreach ct of var `cat' {
@@ -77,9 +77,9 @@ prog def edabox
 			} // End IF Block to remove .gph files
 		
 			// Include in the LaTeX document
-			file write doc "\begin{figure}" _n
-			file write doc `"\caption{`y' by `x' \label{fig:box`boxcount'}}"' _n
-			file write doc `"\includegraphics[angle=90,width=\textwidth]{box`boxcount'.pdf}"' _n
+			file write doc "\begin{figure}[h!]" _n
+			file write doc `"\caption{Box Plot of `y' by `x' \label{fig:box`boxcount'}}"' _n
+			file write doc `"\includegraphics[width=\textwidth]{box`boxcount'.pdf}"' _n
 			file write doc "\end{figure} \newpage\clearpage" _n
 			
 		} // End loop over continuous variables for a given categorical variable

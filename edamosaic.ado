@@ -32,7 +32,7 @@ prog def edamosaic
 	marksample touse
 
 	// Add section header to LaTeX file
-	file write doc "\subsubsection{Bivariate Distributions and Lines of Best Fit}" _n
+	file write doc "\subsubsection{Mosaic Plots}" _n
 
 	// Generate list of all pairwise combination of continuous variables
 	tuples `varlist', asis min(2) max(2)		
@@ -60,9 +60,9 @@ prog def edamosaic
 		// Export to pdf
 		qui: gr export `"`root'/graphs/mosaic`i'.pdf"', as(pdf) replace
 		
-		texclean "`: char `y'[title]'"
+		texclean `"`: char `y'[title]'"'
 		loc yax `r(clntex)'
-		texclean "`: char `x'[title]'"
+		texclean `"`: char `x'[title]'"'
 		loc xax `r(clntex)'
 	
 		// Check if user wants to keep the GPH files
@@ -74,9 +74,9 @@ prog def edamosaic
 		} // End IF Block to remove .gph files
 
 		// Include in the LaTeX document
-		file write doc "\begin{figure}" _n
+		file write doc "\begin{figure}[h!]" _n
 		file write doc `"\caption{`yax' by `xax' \label{fig:mosaic`i'}}"' _n
-		file write doc `"\includegraphics[angle=90,width=\textwidth]{mosaic`i'.pdf}"' _n
+		file write doc `"\includegraphics[width=\textwidth]{mosaic`i'.pdf}"' _n
 		file write doc "\end{figure} \newpage\clearpage" _n
 					
 	} // End loop over categorical by categorical tuples

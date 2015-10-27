@@ -30,14 +30,14 @@ prog def edadistro
 										scheme(passthru)					 ///   
 										keepgph	noUNIvariate]
 	
+	// Mark only the observations to use
+	marksample touse
+
 	// Check implementation for univariate vs bivariate graphs
 	if "`univariate'" != "nounivariate" {
 	
-		// Mark only the observations to use
-		marksample touse
-
 		loc symplotlab "Symmetry Plot for "
-		loc quantilelab "Quantiles of Uniform Distribution vs " "Ordered values of "
+		loc quantilelab "Quantiles of Uniform Distribution vs Ordered values of "
 		loc qnormlab "Normal Distribution vs Quantiles of "
 		loc pnormlab "Standardized Normal Probability Plot for "
 
@@ -57,7 +57,8 @@ prog def edadistro
 			foreach plottype in symplot quantile qnorm pnorm {
 		
 				// Create symmetry plot
-				`plottype' `v' if `touse', `scheme' ti("``plottype'lab'`v'")	  
+				`plottype' `v' if `touse', `scheme' ti("``plottype'lab'`v'") ///	  
+				note("Created on: `c(current_date)' at: `c(current_time)'") 	
 			
 				// Export graph to pdf
 				qui: gr export `"`root'/graphs/`plottype'`v'.pdf"', as(pdf) replace
@@ -71,41 +72,43 @@ prog def edadistro
 				} // End IF Block for null keep graph option
 				
 				// Add the graph to the LaTeX file
-				file write doc "\begin{figure}" _n
+				file write doc "\begin{figure}[h!]" _n
 				file write doc `"\caption{``plottype'lab'`vref' \label{fig:`plottype'`vref'}}"' _n
-				file write doc `"\includegraphics{`plottype'`v'.pdf}"' _n
+				file write doc `"\includegraphics[width=\textwidth]{`plottype'`v'.pdf}"' _n
 				file write doc "\end{figure} \newpage\clearpage" _n
 				
 			} // End Loop over simple plot types
 			
 			// Create quantiles of variable vs chi-squared distro
 			qchi `v' if `touse', `scheme' `: word 1 of `distroplotopts''	 ///   
-			ti("Quantiles of `v' vs. " "Quantiles of {&Chi}{superscript:2}")
+			ti("Quantiles of `v' vs. " "Quantiles of {&Chi}{superscript:2}") ///	  
+			note("Created on: `c(current_date)' at: `c(current_time)'") 
 			
 			// Export the graph to pdf
 			qui: gr export `"`root'/graphs/qchi`v'.pdf"', as(pdf) replace
 			
 			// Create X^2 Probability plots
 			pchi `v' if `touse', `scheme' `: word 2 of `distroplotopts''	 ///   
-			ti("{&Chi}{superscript:2} Probability Plots for `v'")
+			ti("{&Chi}{superscript:2} Probability Plots for `v'")			 ///	  
+			note("Created on: `c(current_date)' at: `c(current_time)'") 
 			
 			// Export to pdf
 			qui: gr export `"`root'/graphs/pchi`v'.pdf"', as(pdf) replace
 			
 			// Add the graph to the LaTeX file
-			file write doc "\begin{figure}" _n
+			file write doc "\begin{figure}[h!]" _n
 			file write doc `"\caption{Chi-Squared Quantiles v. `vref' \label{fig:qchi`vref'}}"' _n
-			file write doc `"\includegraphics{qchi`v'.pdf}"' _n
+			file write doc `"\includegraphics[width=\textwidth]{qchi`v'.pdf}"' _n
 			file write doc "\end{figure} \newpage\clearpage" _n
 			
 			// Add the graph to the LaTeX file
-			file write doc "\begin{figure}" _n
+			file write doc "\begin{figure}[h!]" _n
 			file write doc `"\caption{Chi-Squared Probability `vref' \label{fig:pchi`vref'}}"' _n
-			file write doc `"\includegraphics{pchi`v'.pdf}"' _n
+			file write doc `"\includegraphics[width=\textwidth]{pchi`v'.pdf}"' _n
 			file write doc "\end{figure} \newpage\clearpage" _n
 			
 			// Check option to keep the GPH file on disk
-			if "`keepgph'" == "" {
+			if "`keepgph'" != "" {
 			
 				// Delete Stata GPH file from disk
 				qui: gr save `"`root'/graphs/qchi`v'.gph"', replace
@@ -138,8 +141,8 @@ prog def edadistro
 			loc y : word 2 of `tuple`i''
 			
 			// Create qqplot
-			qqplot `y' `x' if `touse', `scheme' yti(`: char `y'[title]')	 ///   
-			xti(`: char `x'[title]') 
+			qqplot `y' `x' if `touse', `scheme' 							 ///	  
+			note("Created on: `c(current_date)' at: `c(current_time)'") 
 			
 			// Export to pdf
 			qui: gr export `"`root'/graphs/qq`i'.pdf"', as(pdf) replace
@@ -165,9 +168,9 @@ prog def edadistro
 			} // End IF Block to remove .gph files
 
 			// Add the graph to the LaTeX file
-			file write doc "\begin{figure}" _n
-			file write doc `"\caption{`clny' vs `clnx' \label{fig:qq`clny'`clnx'}}"' _n
-			file write doc `"\includegraphics[angle=90,width=\textwidth]{qq`i'.pdf}"' _n
+			file write doc "\begin{figure}[h!]" _n
+			file write doc `"\caption{Quantiles of `clny' vs Quantiles of `clnx' \label{fig:qq`clny'`clnx'}}"' _n
+			file write doc `"\includegraphics[width=\textwidth]{qq`i'.pdf}"' _n
 			file write doc "\end{figure} \newpage\clearpage" _n
 
 		} // End Loop over continuous variable permutations

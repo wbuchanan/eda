@@ -36,6 +36,9 @@ prog def edahist
 	// Mark only the observations to use
 	marksample touse
 
+	// Add subheading to the LaTeX file
+	file write doc "\subsubsection{Histograms}" _n
+
 	// Graphs for individual continuous variables
 	foreach v of var `varlist' {
 
@@ -147,7 +150,7 @@ prog def edahist
 		loc vref `r(clntex)'
 		
 		// Get a LaTeX cleaned title string
-		texclean "`: char `v'[title]'"
+		texclean `"`: char `v'[title]'"'
 		
 		// Store the string in the local macro vlab
 		loc vlab `r(clntex)'
@@ -167,9 +170,9 @@ prog def edahist
 		} // End IF Block to remove .gph files
 
 		// Add the graph to the LaTeX file
-		file write doc "\begin{figure}" _n
+		file write doc "\begin{figure}[h!]" _n
 		file write doc `"\caption{`vlab' \label{fig:histo`vref'}}"' _n
-		file write doc `"\includegraphics{histo`v'.pdf}"' _n
+		file write doc `"\includegraphics[width=\textwidth]{histo`v'.pdf}"' _n
 		file write doc "\end{figure} \newpage\clearpage" _n
 		
 	} // End loop over continuous variables

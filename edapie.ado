@@ -32,6 +32,9 @@ prog def edapie
 	// Mark only the observations to use
 	marksample touse
 
+	// Add subheading to the LaTeX file
+	file write doc "\subsubsection{Pie Charts}" _n
+
 	// Create bar graphs for the categorical variables
 	foreach v of var `varlist' { 
 
@@ -61,15 +64,15 @@ prog def edapie
 		loc vref `r(clntex)'
 
 		// Get LaTeX formatted variable label
-		texclean "`: char `v'[title]'"
+		texclean `"`: char `v'[title]'"'
 
 		// Store the variable label in vlab
 		loc vlab `r(clntex)'
 
 		// Add the graph to the LaTeX file
-		file write doc "\begin{figure}" _n
+		file write doc "\begin{figure}[h!]" _n
 		file write doc `"\caption{`vlab' \label{fig:pie`vref'}}"' _n
-		file write doc `"\includegraphics{pie`v'.pdf}"' _n
+		file write doc `"\includegraphics[width=\textwidth]{pie`v'.pdf}"' _n
 		file write doc "\end{figure} \newpage\clearpage" _n
 
 	} // End loop over categorical variables

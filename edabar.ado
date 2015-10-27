@@ -33,6 +33,9 @@ prog def edabar
 	// Mark only the observations to use
 	marksample touse
 
+	// Add subsubsection header for categorical data
+	file write doc "\subsubsection{Bar Graphs} \newpage\clearpage" _n
+	
 	// Create bar graphs for the categorical variables
 	foreach v of var `varlist' { 
 
@@ -51,11 +54,13 @@ prog def edabar
 		loc ref `r(clntex)'
 		texclean `"`: char `v'[title]'"'
 		loc cap `r(clntex)'
+		
+		loc cap : subinstr loc cap `"""' "", all
 				
 		// Add the graph to the LaTeX file
-		file write doc "\begin{figure}" _n
-		file write doc `"\caption{`: char `v'[title]' \label{fig:bar`v'}}"' _n
-		file write doc `"\includegraphics[angle=90,width=\textwidth]{bar`v'.pdf}"' _n
+		file write doc "\begin{figure}[h!]" _n
+		file write doc `"\caption{`cap' \label{fig:bar`v'}}"' _n
+		file write doc `"\includegraphics[width=\textwidth]{bar`v'.pdf}"' _n
 		file write doc "\end{figure} \newpage\clearpage" _n
 
 		// Check if user wants to keep the GPH files

@@ -7,7 +7,7 @@
 *	  the LaTeX source document.											   *
 *                                                                              *
 * Lines -                                                                      *
-*     540                                                                      *
+*     625                                                                      *
 *                                                                              *
 ********************************************************************************
 		
@@ -39,7 +39,7 @@ prog def eda
 	QFIT2(string asis) LOWess LOWess2(string asis) FPFIT FPFIT2(string asis) ///   
 	LFITCi LFITCi2(string asis) QFITCi QFITCi2(string asis) FPFITCi 		 ///   
 	FPFITCi2(string asis) noBUBBLEplots noBOXplots noMOSAIC noHEATmap 		 ///   
-	COMPile PDFLatex(string asis)]
+	COMPile PDFLatex(passthru) SLOw]
 
 	// Make the sample to use for the program
 	marksample edause, strok novarlist
@@ -67,6 +67,14 @@ prog def eda
 		loc authorname `c(username)'
 		
 	} // End IF Block for author name
+	
+	// Check slow option
+	if "`slow'" != "" {
+	
+		// Set local macro with sleep command
+		loc slow sleep 5000
+		
+	} // End IF Block for slow option
 
 	// Preserve the current state of the data in memory
 	preserve
@@ -149,7 +157,7 @@ prog def eda
 		} // End ELSEIF Block for all strings OK 
 		
 		// New way to try identifying categorical vs. continuous variables
-		ds, not(type string)
+		qui: ds, not(type string)
 
 		// Store the variables in a new local macro
 		loc numvars `r(varlist)'
@@ -190,13 +198,13 @@ prog def eda
 		// Write a LaTeX file Heading
 		file write doc "\documentclass[12pt,oneside,final,letterpaper]{article}" _n
 		file write doc "\usepackage{pdflscape}" _n
-		file write doc "\usepackage[letterpaper,landscape,margin=0.25in]{geometry}" _n
+		file write doc "\usepackage[letterpaper,margin=0.25in]{geometry}" _n
 		file write doc "\usepackage{graphicx}" _n
 		file write doc "\usepackage[hidelinks]{hyperref}" _n
 		file write doc "\usepackage{longtable}" _n
 		file write doc "\usepackage[toc,page,titletoc]{appendix}" _n
 		file write doc "\DeclareGraphicsExtensions{.pdf, .png}" _n
-		file write doc `"\graphicspath{`root'/graphs/}"' _n
+		file write doc `"\graphicspath{{"`root'/graphs/"}}"' _n
 		file write doc `"\title{Exploratory Data Analysis of: \\ $S_FN}"'  _n
 		file write doc `"\author{`authorname'}"' _n
 		file write doc "\let\mypdfximage\pdfximage" _n
@@ -206,11 +214,12 @@ prog def eda
 		file write doc "\newpage\clearpage \tableofcontents \newpage\clearpage" _n
 		file write doc "\listoffigures \newpage\clearpage" _n 
 		file write doc "\listoftables \newpage\clearpage" _n
-		file write doc "\section{Graphs}" _n
+		file write doc "\section{Graphs} \newpage\clearpage" _n
 		file write doc "\begin{landscape}" _n
 
 		// Make sure the data are stored more efficiently
-		compress
+		qui: compress
+		
 		/*
 		// Build a codebook
 		codebook, all mv
@@ -227,20 +236,20 @@ prog def eda
 		*/
 		
 		// Add entry for univariate distributions
-		file write doc "\subsection{Univariate Distributions}" _n
+		file write doc "\subsection{Univariate Distributions} \newpage\clearpage" _n
 
+		// Add subsubsection header for categorical data
+		file write doc "\subsubsection{Categorical Variables} \newpage\clearpage" _n
+		
 		// Check if user wants bargraphs
 		if "`bargraphs'" != "nobargraphs" & !inlist(`catvarcount', 0, .) {
 
-			// Add subsubsection header for categorical data
-			file write doc "\subsubsection{Categorical Variables}" _n
-			
 			// Call Bar graph subroutine
 			edabar `categorical' if `edause', root(`root') `bargraphopts' 	 ///   
 											  bart(`bartype') `scheme' `keepgph'
 
 		} // End IF Block for bar graph creation
-
+		
 		// Check if user wants pie charts
 		if "`piecharts'" != "nopiecharts" & !inlist(`catvarcount', 0, .) {
 
@@ -251,7 +260,7 @@ prog def eda
 		} // End IF Block for pie charts option
 
 		// Add subheading to the LaTeX file
-		file write doc "\subsubsection{Continuous Variables}" _n
+		file write doc "\subsubsection{Continuous Variables} \newpage\clearpage" _n
 
 		// Check if user wants histograms
 		if "`histograms'" != "nohistograms" & !inlist(`contvarcount', 0, .) {
@@ -262,6 +271,7 @@ prog def eda
 			fnsopts(`fnsopts')
 
 		} // End IF Block for histograms
+
 
 		// Check for distroplots option
 		if "`distroplots'" != "nodistroplots" & !inlist(`contvarcount', 0, .) {
@@ -275,9 +285,6 @@ prog def eda
 		// Check for ladders
 		if "`ladderplots'" != "noladderplots" & !inlist(`contvarcount', 0, .) {
 
-			// Add subheading to the LaTeX file
-			file write doc "\subsubsection{Ladder of Powers Transformation Graphs}" _n
-
 			// Call subroutine for ladders of power graphs
 			edaladder `continuous' if `edause', `scheme' `histogramopts' 	 ///   
 			root(`root')
@@ -285,7 +292,7 @@ prog def eda
 		} // End IF Block for ladder of power graphs
 
 		// Header for bivariate/conditional distribution graphs
-		file write doc "\subsection{Bivariate and Conditional Distributions}" _n
+		file write doc "\subsection{Bivariate Distributions} \newpage\clearpage" _n
 
 		// Check for scatter plot option
 		if "`scatterplots'" != "noscatterplots" & !inlist(`contvarcount', 0, .) {
@@ -307,14 +314,16 @@ prog def eda
 
 		} // End IF Block for bubble plots
 
+
 		// Check distro plots again
 		if "`distroplots'" != "nodistroplots" & !inlist(`contvarcount', 0, .) {
 
 			// Call subroutine for joint distribution plots
 			edadistro `continuous' if `edause', nounivariate root(`root') 	 ///   
-			`scheme' `keepgph'
+			`scheme' `keepgph' distrop(`distroplotopts')
 
 		} // End IF Block for quantile-quantile plots
+
 				
 		// Option to generate box plots
 		if "`boxplots'" != "noboxplots" & (!inlist(`contvarcount', 0, .) & 	 ///   
@@ -326,6 +335,7 @@ prog def eda
 			
 		} // End IF Block for box plots
 
+
 		// Check for mosiac/spine plots
 		if "`mosaic'" != "nomosaic" & !inlist(`catvarcount', 0, .) {
 
@@ -335,25 +345,21 @@ prog def eda
 
 		} // End IF Block for mosaic plot creation
 
+
 		// Check for correlation heatmap option
 		if "`heatmap'" != "noheatmap" & !inlist(`contvarcount', 0, .) {
-
-			// Add section header to LaTeX file
-			file write doc "\section{Correlations}" _n
-
-			// Add subsection header
-			file write doc "\subsection{Correlations Between Continuous Variables}" _n
 
 			// Create heatmap from continuous variables
 			edaheat `continuous' if `edause', root(`root') `keepgph'
 			
 		} // End IF Block for correlation heatmap option
 
+
 		// Change back to portrait page layout
 		file write doc "\end{landscape}" _n
 
 		// Create next section/subsection headers
-		file write doc "\section{Descriptive Statistics}" _n
+		file write doc "\section{Descriptive Statistics} \newpage\clearpage" _n
 		
 		// Adjust variable labels since they get used in the tables
 		foreach v of var `categorical' `continuous' {
@@ -370,7 +376,7 @@ prog def eda
 		if !inlist(`catvarcount', 0, .) {
 
 			// Add categorical variable header
-			file write doc "\subsection{Categorical Variables}" _n
+			file write doc "\subsection{Categorical Variables} \newpage\clearpage" _n
 			
 			// Create statistical summaries of all categorical variables
 			foreach v of var `categorical' {
@@ -379,13 +385,13 @@ prog def eda
 				qui: estpost ta `v' if `edause', mi notot
 
 				// Export table to LaTeX file
-				esttab . using `"`root'/tables/tab`v'.tex"', uns noobs longtable ///   
-				varlabels(`e(labels)') eql("`v'") ml(, none) nonum				 ///   
-				cells("b pct(fmt(a3))") coll("Frequency" "Percentage") 			 ///   
-				ti(`"Distribution of `: var l `v''"')
+				esttab . using `"`root'/tables/tab`v'.tex"', uns noobs 		 ///   
+				longtable varlabels(`e(labels)') eql("`v'") ml(, none) 		 ///   
+				nonum cells("b pct(fmt(a3))") replace						 ///   
+				coll("Frequency" "Percentage") ti(`"Distribution of `v'"')
 				
 				// Add the table to the LaTeX document
-				file write doc "\begin{table}" _n
+				file write doc "\begin{table}[h]" _n
 				file write doc `"\input{"`root'/tables/tab`v'"}"' _n
 				file write doc "\end{table}" _n
 
@@ -408,16 +414,16 @@ prog def eda
 					
 				// Create cross-tabulation
 				qui: estpost ta `one' `two' if `edause', mi notot
-				
+
 				// Export it to LaTeX
-				esttab . using `"`root'/tables/tab`one'`two'.tex"', 		 ///   
+				esttab . using `"`root'/tables/tab`one'`two'.tex"', replace  ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("b pct(fmt(a3)) colpct(fmt(a3)) rowpct(fmt(a3))") 	 ///   
 				coll("Frequency" "Overall\%" "Column\%" "Row\%") noobs uns 	 ///   
-				longtable ti(`"Distribution of `: var l `one'' by `: var l `two''"')
+				longtable ti(`"Distribution of `one' by `two'"')
 
 				// Add the table to the LaTeX document
-				file write doc "\begin{table}" _n
+				file write doc "\begin{table}[h]" _n
 				file write doc `"\input{"`root'/tables/tab`one'`two'"}"' _n
 				file write doc "\end{table}" _n
 
@@ -431,11 +437,8 @@ prog def eda
 		// Check for categorical variables
 		if !inlist(`contvarcount', 0, .) {
 
-			file write doc "\subsection{Continuous Variables}" _n	
+			file write doc "\subsection{Continuous Variables} \newpage\clearpage" _n	
 
-			// Go back to landscape one more time
-			file write doc "\begin{landscape}" _n
-				
 			// Create summary statistics table for continuous variables
 			qui: estpost su `continuous' if `edause', de  quietly
 
@@ -472,26 +475,23 @@ prog def eda
 			// esttab . using correlationtable.tex, not unstack compress noobs
 
 			// Add both tables to LaTeX document
-			file write doc "\begin{table}" _n
-			file write doc `"\input{`"`root'/tables/descriptives"'}"' _n
+			file write doc "\begin{table}[h]" _n
+			file write doc `"\input{"`root'/tables/descriptives"}"' _n
 			file write doc "\end{table}" _n
-			file write doc "\begin{table}" _n
-			file write doc `"\input{`"`root'/tables/higherorder"'}"' _n
+			file write doc "\begin{table}[h]" _n
+			file write doc `"\input{"`root'/tables/higherorder"}"' _n
 			file write doc "\end{table}" _n
-			file write doc "\begin{table}" _n
-			file write doc `"\input{`"`root'/tables/orderstats"'}"' _n
+			file write doc "\begin{table}[h]" _n
+			file write doc `"\input{"`root'/tables/orderstats"}"' _n
 			file write doc "\end{table}"
 
-			// file write doc "\include{correlationtable.tex}" _n
-			file write doc "\end{landscape}" _n
-			
 		} // End IF Block for continuous variables
 		
 		// Check for categorical variables
 		if !inlist(`catvarcount', 0, .) & !inlist(`contvarcount', 0, .) {
 		
 			// Add file header for conditional distributions
-			file write doc "\section{Conditional Descriptive Statistics}" _n
+			file write doc "\section{Conditional Descriptive Statistics} \newpage\clearpage" _n
 
 			// Set the maximum matrix size to prevent a matsize error in the loop below
 			set matsize 11000
@@ -511,12 +511,12 @@ prog def eda
 
 				// Create the output table
 				esttab . using `"`root'/tables/condmean`cat'.tex"', label 	 ///   
-				nomti nonum main(mean) nostar uns longtable 				 ///   
+				nomti nonum main(mean) nostar uns longtable replace			 ///   
 				coll(`e(labels)') ti("Averages by groups of `cref'")
 				
 				// Add table to LaTeX document
-				file write doc "\begin{table}" _n
-				file write doc `"\input{`"`root'/tables/condmeans`cat'"'}"' _n
+				file write doc "\begin{table}[h]" _n
+				file write doc `"\input{"`root'/tables/condmean`cat'"}"' _n
 				file write doc "\end{table}" _n
 				
 				// Get means/SDs for each category in variable cat
@@ -524,12 +524,12 @@ prog def eda
 
 				// Create the output table
 				esttab . using `"`root'/tables/condsd`cat'.tex"', label 	 ///   
-				nomti nonum main(sd) nostar uns longtable  					 ///   
+				nomti nonum main(sd) nostar uns longtable replace			 ///   
 				coll(`e(labels)') ti("Standard Deviations by groups of `cref'")
 
 				// Add table to LaTeX document
-				file write doc "\begin{table}" _n
-				file write doc `"\input{`"`root'/tables/condsd`cat'"'}"' _n
+				file write doc "\begin{table}[h]" _n
+				file write doc `"\input{"`root'/tables/condsd`cat'"}"' _n
 				file write doc "\end{table}" _n
 				
 			} // End Loop for conditional descriptive statistics	
@@ -546,14 +546,15 @@ prog def eda
 		if "`compile'" != "" {
 
 			// Create bash/batch script to compile source
-			maketexcomp "`root'/`output'.tex", scr(`"`root'/makeLaTeX"')
+			maketexcomp "`root'/`output'.tex", scr(`"`root'/makeLaTeX"')	 ///   
+			`pdflatex'
 			
 			// Local with code to execute compiler script
 			loc exec `r(comp)'
 
 			// Execute the compile script to make the LaTeX turn into a PDF
 			`exec'
-
+			
 		} // End IF Block for compilation option	
 		
 	// Restore data to original state

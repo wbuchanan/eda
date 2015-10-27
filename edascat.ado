@@ -39,7 +39,7 @@ prog def edascat
 	marksample touse
 
 	// Add section header to LaTeX file
-	file write doc "\subsubsection{Bivariate Distributions and Lines of Best Fit}" _n
+	file write doc "\subsubsection{Scatterplots}" _n
 
 	// Generate list of all pairwise combination of continuous variables
 	tuples `varlist', asis min(2) max(2)		
@@ -246,21 +246,21 @@ prog def edascat
 		} // End IF Block to remove .gph files
 
 		// Get LaTeX cleaned y variable label
-		texclean "`: char `y'[title]'"
+		texclean `"`: char `y'[title]'"'
 
 		// Store the y variable label in yti
 		loc yti `r(clntex)'
 
 		// Get LaTeX cleaned x variable label
-		texclean "`: char `x'[title]'"
+		texclean `"`: char `x'[title]'"'
 
 		// Store the x variable label in xti
 		loc xti `r(clntex)'
 
 		// Add the scatterplot to the LaTeX document
-		file write doc "\begin{figure}" _n
-		file write doc `"\caption{`yti' \& `xti' \label{fig:scatter`i'}}"' _n
-		file write doc `"\includegraphics{scatter`i'.pdf}"' _n
+		file write doc "\begin{figure}[h!]" _n
+		file write doc `"\caption{Scatterplot of `yti' \& `xti' \label{fig:scatter`i'}}"' _n
+		file write doc `"\includegraphics[width=\textwidth]{scatter`i'.pdf}"' _n
 		file write doc "\end{figure} \newpage\clearpage" _n
 		
 	} // End Loop over scatter plot permutations
