@@ -7,13 +7,13 @@
 * 	  entries in the LaTeX document  										   *
 *                                                                              *
 * Lines -                                                                      *
-*     92                                                                       *
+*     93                                                                       *
 *                                                                              *
 ********************************************************************************
 		
 *! edaladder
 *! v 0.0.0
-*! 27OCT2015
+*! 28OCT2015
 
 // Drop program from memory if already loaded
 cap prog drop edaladder
@@ -41,14 +41,14 @@ prog def edaladder
 	
 		// Create the gladder graph
 		gladder `v' if `touse', `scheme' `histogramopts'					 ///   
-		ti("Ladder of Powers Histograms for `v'")
+		ti("Ladder of Powers Histograms for " `: char `v'[title]')
 	
 		// Export to pdf
 		qui: gr export `"`root'/graphs/gladder`v'.pdf"', as(pdf) replace
 	
 		// Create the gladder graph
 		qladder `v' if `touse', `scheme' `histogramopts'					 ///   
-		ti("Ladder of Powers Quantile Normal Plots for `v'")
+		ti("Ladder of Powers Quantile Normal Plots for " `:char `v'[title]')
 	
 		// Export to pdf
 		qui: gr export `"`root'/graphs/qladder`v'.pdf"', as(pdf) replace
@@ -60,7 +60,7 @@ prog def edaladder
 		loc vref `r(clntex)'
 		
 		// Get a LaTeX cleaned title string
-		texclean `"`: char `v'[title]'"'
+		texclean `"`: var l `v''"'
 		
 		// Store the string in the local macro vlab
 		loc vlab `r(clntex)'

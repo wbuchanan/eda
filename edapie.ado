@@ -58,20 +58,20 @@ prog def edapie
 		} // End IF Block to remove .gph files
 
 		// Get LaTeX formatted variable name
-		texclean "`v'", r
+		texclean `"`v'"', r
 
 		// Store the variable name in vref
 		loc vref `r(clntex)'
 
 		// Get LaTeX formatted variable label
-		texclean `"`: char `v'[title]'"'
+		texclean `"`: var l `v''"'
 
 		// Store the variable label in vlab
 		loc vlab `r(clntex)'
 
 		// Add the graph to the LaTeX file
 		file write doc "\begin{figure}[h!]" _n
-		file write doc `"\caption{`vlab' \label{fig:pie`vref'}}"' _n
+		file write doc `"\caption{Pie Chart of `vlab' \label{fig:pie`vref'}}"' _n
 		file write doc `"\includegraphics[width=\textwidth]{pie`v'.pdf}"' _n
 		file write doc "\end{figure} \newpage\clearpage" _n
 

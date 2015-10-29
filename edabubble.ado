@@ -7,13 +7,13 @@
 *	  LaTeX document  														   *
 *                                                                              *
 * Lines -                                                                      *
-*     102                                                                      *
+*     103                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edabubble
 *! v 0.0.0
-*! 27OCT2015
+*! 28OCT2015
 
 // Drop program from memory if already loaded
 cap prog drop edabubble
@@ -52,9 +52,12 @@ prog def edabubble
 		// Local macro for legend data
 		loc legendlabels label(1 "Scatter Points")
 
+		// Define a macro used to set legend parameters
+		loc leg legend(`legendlabels' symy(1.85) symx(1.85))
+
 		// Generate the scatterplot
 		tw scatter `y' `x' [aw = `z']  if `touse', xti(`: char `x'[title]')  ///   
-		yti(`: char `y'[title]') legend(`legendlabels') `scheme'			 ///   
+		yti(`: char `y'[title]') `leg' `scheme'								 ///   
 		ti("Joint Distribution of `y' and `x' and " 						 ///   
 		"Points Sizes Weighted by `z'")										 ///   
 		note("Created on: `c(current_date)' at: `c(current_time)'") 
@@ -71,19 +74,19 @@ prog def edabubble
 		} // End IF Block to remove .gph files
 
 		// Get LaTeX formatted variable name for use in LaTeX references
-		texclean "`y'", r
+		texclean `"`: var l `y''"'
 		
 		// Store the cleaned y varname in yref
 		loc yref `r(clntex)'
 
 		// Get LaTeX formatted variable name for use in LaTeX references
-		texclean "`x'", r
+		texclean `"`: var l `x''"'
 		
 		// Store the cleaned x varname in xref
 		loc xref `r(clntex)'
 
 		// Get LaTeX formatted variable name for use in LaTeX references
-		texclean "`z'", r
+		texclean `"`: var l `z''"'
 		
 		// Store the cleaned z varname in zref
 		loc zref `r(clntex)'

@@ -7,13 +7,13 @@
 *	  LaTeX document  														   *
 *                                                                              *
 * Lines -                                                                      *
-*     271                                                                      *
+*     269                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edascat
 *! v 0.0.0
-*! 27OCT2015
+*! 28OCT2015
 
 // Drop program from memory if already loaded
 cap prog drop edascat
@@ -212,18 +212,18 @@ prog def edascat
 		loc legendlabels `legendlabels' label(`scattercounter' ``ov'lab')
 				
 		// If there are 4 or less total legend entries use a single row
-		if `scattercounter' <= 3 {
+		if `scattercounter' <= 4 {
 		
 			// Syntax to enforce single row of legend keys
-			loc leg legend(rows(1) symy(1.85) symx(1.85) `legendlabels' span)
+			loc leg legend(rows(1) symy(1.85) symx(1.85) `legendlabels')
 			
-		} // End IF Block for <= 3 graph elements
+		} // End IF Block for <= 4 graph elements
 
 		// If there are more elements to place in the legend
 		else {
 		
 			// Reduce the size of the labels
-			loc leg legend(rows(2) symy(1.85) symx(1.85) `legendlabels' size(vsmall) span)
+			loc leg legend(rows(2) symy(1.85) symx(1.85) `legendlabels' size(small))
 			
 		} // End ELSE Block for many legend entries
 		
@@ -246,13 +246,13 @@ prog def edascat
 		} // End IF Block to remove .gph files
 
 		// Get LaTeX cleaned y variable label
-		texclean `"`: char `y'[title]'"'
+		texclean `"`: var l `y''"'
 
 		// Store the y variable label in yti
 		loc yti `r(clntex)'
 
 		// Get LaTeX cleaned x variable label
-		texclean `"`: char `x'[title]'"'
+		texclean `"`: var l `x''"'
 
 		// Store the x variable label in xti
 		loc xti `r(clntex)'

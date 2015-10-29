@@ -6,13 +6,13 @@
 *     Creates pie chart GPH and PDF as well as entries in the LaTeX document   *
 *                                                                              *
 * Lines -                                                                      *
-*     180                                                                      *
+*     181                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edahist
 *! v 0.0.0
-*! 27OCT2015
+*! 28OCT2015
 
 // Drop program from memory if already loaded
 cap prog drop edahist
@@ -150,7 +150,7 @@ prog def edahist
 		loc vref `r(clntex)'
 		
 		// Get a LaTeX cleaned title string
-		texclean `"`: char `v'[title]'"'
+		texclean `"`: var l `v''"'
 		
 		// Store the string in the local macro vlab
 		loc vlab `r(clntex)'
@@ -171,7 +171,7 @@ prog def edahist
 
 		// Add the graph to the LaTeX file
 		file write doc "\begin{figure}[h!]" _n
-		file write doc `"\caption{`vlab' \label{fig:histo`vref'}}"' _n
+		file write doc `"\caption{Histogram of `vlab' \label{fig:histo`vref'}}"' _n
 		file write doc `"\includegraphics[width=\textwidth]{histo`v'.pdf}"' _n
 		file write doc "\end{figure} \newpage\clearpage" _n
 		

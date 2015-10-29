@@ -7,13 +7,13 @@
 *	  the LaTeX document  													   *
 *                                                                              *
 * Lines -                                                                      *
-*     87                                                                       *
+*     93                                                                       *
 *                                                                              *
 ********************************************************************************
 		
 *! edamosaic
 *! v 0.0.0
-*! 27OCT2015
+*! 28OCT2015
 
 // Drop program from memory if already loaded
 cap prog drop edamosaic
@@ -47,22 +47,30 @@ prog def edamosaic
 		loc y : word 2 of `tuple`i''
 		
 		// Set legend rows 
-		loc rs `= round((`: char `y'[nvals]' / 3), 1)'
+		loc rs rows(`: char `y'[lrows]')
 		
 		// Macro storing legending options
-		loc legend legend(rows(`rs') pos(12) span symy(1.85) symx(1.85))
+		loc legend legend(`rs' pos(12) symy(1.85) symx(1.85))
 
 		// Create mosaic plot
 		spineplot `y' `x' if `touse', `percent' `missing' `legend'			 ///   
-		xti(`: char `x'[title]') yti(`: char `y'[title]') 					 ///   
-		ti("Joint distribution of `y' and `x'")	`scheme'  
+		xti(`: char `x'[title]', axis(2)) yti(`: char `y'[title]', axis(2))  ///   
+		ti("Joint distribution of " `: char `y'[title]' " and "				 ///   
+		`: char `x'[title]') `scheme'  
 		
 		// Export to pdf
 		qui: gr export `"`root'/graphs/mosaic`i'.pdf"', as(pdf) replace
 		
-		texclean `"`: char `y'[title]'"'
+		// Get a LaTeX prepped version of the y var label
+		texclean `"`: var l `y''"'
+
+		// Store the prepped y var label in yax
 		loc yax `r(clntex)'
-		texclean `"`: char `x'[title]'"'
+
+		// Get a LaTeX prepped version of the x var label
+		texclean `"`: var l `x''"'
+
+		// Store the prepped x var label in xax
 		loc xax `r(clntex)'
 	
 		// Check if user wants to keep the GPH files
@@ -75,7 +83,7 @@ prog def edamosaic
 
 		// Include in the LaTeX document
 		file write doc "\begin{figure}[h!]" _n
-		file write doc `"\caption{`yax' by `xax' \label{fig:mosaic`i'}}"' _n
+		file write doc `"\caption{Mosaic Plots of `yax' by `xax' \label{fig:mosaic`i'}}"' _n
 		file write doc `"\includegraphics[width=\textwidth]{mosaic`i'.pdf}"' _n
 		file write doc "\end{figure} \newpage\clearpage" _n
 					

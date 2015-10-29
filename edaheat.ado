@@ -7,13 +7,13 @@
 *     Creates heatmap GPH and PDF as well as entries in the LaTeX document     *
 *                                                                              *
 * Lines -                                                                      *
-*     144                                                                      *
+*     157                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edaheat
 *! v 0.0.0
-*! 27OCT2015
+*! 28OCT2015
 
 // Drop program from memory if already loaded
 cap prog drop edaheat
@@ -48,14 +48,20 @@ prog def edaheat, rclass
 		// Loop over variables to get variable labels
 		foreach v of var `varlist' {
 		
+			// Clean the variable label
+			texclean `"`: var l `v''"'
+		
 			// Get variable label
-			loc `v'lab : var l `v'
+			loc `v'lab `r(clntex)'
 			
 			// Check for null strings
 			if `"``v'lab'"' == "" {
 			
+				// Clean the variable name
+				texclean `"`v'"', r
+			
 				// Assign the variable name to the label macro
-				loc `v'lab "`v'"
+				loc `v'lab `r(clntex)'
 				
 			} // End IF Block for null variable label handling
 			
@@ -100,6 +106,7 @@ prog def edaheat, rclass
 		la val xvar xvar
 		la val yvar xvar
 		
+		// Change end of line delimited to semicolon
 		#d ;
 		
 		// Create a contour plot for the correlations
@@ -109,6 +116,8 @@ prog def edaheat, rclass
 		ccolor("127 59 8" "179 88 6" "224 130 20" "253 184 99" "254 224 182" 
 		"216 218 235" "178 171 210" "128 115 172");
 		
+		// This is the one used for inclusion to work around the issues with 
+		// twoway contour
 		tw contour edaheatmat yvar xvar, heatmap xlab(1(1)`maxn', val 
 		labsize(tiny) angle(90)) ylab(1(1)`maxn', val labsize(tiny) angle(0) 
 		nogrid) graphr(ic(white) fc(white) lc(white))  ccut(-1(.2)1) ysca(rev) 
@@ -118,6 +127,7 @@ prog def edaheat, rclass
 		zti("Estimated" "Correlation Coefficient")
 		ti("Correlations Between Continuous Variables");
 
+		// End of Line delimited to carriage return
 		#d cr
 		
 		// Export the graph to pdf

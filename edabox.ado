@@ -7,13 +7,13 @@
 *	  LaTeX document  														   *
 *                                                                              *
 * Lines -                                                                      *
-*     92                                                                       *
+*     107                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edabox
 *! v 0.0.0
-*! 27OCT2015
+*! 28OCT2015
 
 // Drop program from memory if already loaded
 cap prog drop edabox
@@ -45,13 +45,16 @@ prog def edabox
 		// Loop over all of the continuous variables
 		foreach cnt of var `cont' { 
 		
+			// Define a macro used to set legend parameters
+			loc leg legend(rows(`:char `ct'[lrows]') symy(1.85) symx(1.85))
+
 			// Increment the boxplot counter
 			loc boxcount = `boxcount' + 1
 			
 			// Generate Box plot
 			gr box `cnt' if `touse', over(`ct') asyvars	`scheme' yti("")	 ///   
 			ti(`: char `cnt'[title]' "vs" `: char `ct'[title]')	`missing'	 ///  
-			note("Created on: `c(current_date)' at: `c(current_time)'")  
+			note("Created on: `c(current_date)' at: `c(current_time)'") `leg'
 						
 			// Export to pdf
 			qui: gr export `"`root'/graphs/box`boxcount'.pdf"', as(pdf) replace
@@ -67,6 +70,18 @@ prog def edabox
 			
 			// Store cleaned name in macro x
 			loc x `r(clntex)'
+			
+			// Get the y variable title string
+			texclean `"`: var l `cnt''"'
+			
+			// Store the string
+			loc ycap `r(clntex)'
+			
+			// Get the y variable title string
+			texclean `"`: var l `ct''"'
+			
+			// Store the string
+			loc xcap `r(clntex)'
 
 			// Check if user wants to keep the GPH files
 			if "`keepgph'" != "" {
@@ -78,7 +93,7 @@ prog def edabox
 		
 			// Include in the LaTeX document
 			file write doc "\begin{figure}[h!]" _n
-			file write doc `"\caption{Box Plot of `y' by `x' \label{fig:box`boxcount'}}"' _n
+			file write doc `"\caption{Box Plot of `ycap' by `xcap' \label{fig:box`boxcount'}}"' _n
 			file write doc `"\includegraphics[width=\textwidth]{box`boxcount'.pdf}"' _n
 			file write doc "\end{figure} \newpage\clearpage" _n
 			

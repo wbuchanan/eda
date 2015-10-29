@@ -7,13 +7,13 @@
 * 	  as well as entries in the LaTeX document  							   *
 *                                                                              *
 * Lines -                                                                      *
-*     176                                                                      *
+*     199                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edadistro
 *! v 0.0.0
-*! 26OCT2015
+*! 28OCT2015
 
 // Drop program from memory if already loaded
 cap prog drop edadistro
@@ -52,6 +52,12 @@ prog def edadistro
 			
 			// Store the variable name in vref
 			loc vref `r(clntex)'
+			
+			// Get LaTeX sanitized version of the variable label
+			texclean `"`: var l `v''"'
+			
+			// Store the label in vlab
+			loc vlab `r(clntex)'
 
 			// Loop over the simpler plot types
 			foreach plottype in symplot quantile qnorm pnorm {
@@ -73,7 +79,7 @@ prog def edadistro
 				
 				// Add the graph to the LaTeX file
 				file write doc "\begin{figure}[h!]" _n
-				file write doc `"\caption{``plottype'lab'`vref' \label{fig:`plottype'`vref'}}"' _n
+				file write doc `"\caption{``plottype'lab'`vlab' \label{fig:`plottype'`vref'}}"' _n
 				file write doc `"\includegraphics[width=\textwidth]{`plottype'`v'.pdf}"' _n
 				file write doc "\end{figure} \newpage\clearpage" _n
 				
@@ -97,13 +103,13 @@ prog def edadistro
 			
 			// Add the graph to the LaTeX file
 			file write doc "\begin{figure}[h!]" _n
-			file write doc `"\caption{Chi-Squared Quantiles v. `vref' \label{fig:qchi`vref'}}"' _n
+			file write doc `"\caption{Chi-Squared Quantiles v. `vlab' \label{fig:qchi`vref'}}"' _n
 			file write doc `"\includegraphics[width=\textwidth]{qchi`v'.pdf}"' _n
 			file write doc "\end{figure} \newpage\clearpage" _n
 			
 			// Add the graph to the LaTeX file
 			file write doc "\begin{figure}[h!]" _n
-			file write doc `"\caption{Chi-Squared Probability `vref' \label{fig:pchi`vref'}}"' _n
+			file write doc `"\caption{Chi-Squared Probability `vlab' \label{fig:pchi`vref'}}"' _n
 			file write doc `"\includegraphics[width=\textwidth]{pchi`v'.pdf}"' _n
 			file write doc "\end{figure} \newpage\clearpage" _n
 			
@@ -148,16 +154,28 @@ prog def edadistro
 			qui: gr export `"`root'/graphs/qq`i'.pdf"', as(pdf) replace
 			
 			// Get LaTeX sanitized x variable name
-			texclean "`x'", r
+			texclean `"`x'"', r
 			
 			// Store cleaned x variable name in clnx
 			loc clnx `r(clntex)'
 			
 			// Get LaTeX sanitized y variable name
-			texclean "`y'", r
+			texclean `"`y'"', r
 			
 			// Store cleaned y variable name in clny
 			loc clny `r(clntex)'
+			
+			// Get clean version of y var label
+			texclean `"`: var l `y''"'
+			
+			// Store the label in the local macro ylab
+			loc ylab `r(clntex)'
+			
+			// Get clean version of x var label
+			texclean `"`: var l `x''"'
+			
+			// Store the label in the local macro xlab
+			loc xlab `r(clntex)'
 					
 			// Check if user wants to keep the GPH files
 			if "`keepgph'" != "" {
@@ -169,7 +187,7 @@ prog def edadistro
 
 			// Add the graph to the LaTeX file
 			file write doc "\begin{figure}[h!]" _n
-			file write doc `"\caption{Quantiles of `clny' vs Quantiles of `clnx' \label{fig:qq`clny'`clnx'}}"' _n
+			file write doc `"\caption{Quantiles of `ylab' vs Quantiles of `xlab' \label{fig:qq`clny'`clnx'}}"' _n
 			file write doc `"\includegraphics[width=\textwidth]{qq`i'.pdf}"' _n
 			file write doc "\end{figure} \newpage\clearpage" _n
 

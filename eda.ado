@@ -7,13 +7,13 @@
 *	  the LaTeX source document.											   *
 *                                                                              *
 * Lines -                                                                      *
-*     625                                                                      *
+*     597                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! eda
 *! v 0.0.0
-*! 27OCT2015
+*! 28OCT2015
 
 // If you don't have the tuples program installed you may want to do that
 // ssc inst tuples, replace
@@ -39,7 +39,7 @@ prog def eda
 	QFIT2(string asis) LOWess LOWess2(string asis) FPFIT FPFIT2(string asis) ///   
 	LFITCi LFITCi2(string asis) QFITCi QFITCi2(string asis) FPFITCi 		 ///   
 	FPFITCi2(string asis) noBUBBLEplots noBOXplots noMOSAIC noHEATmap 		 ///   
-	COMPile PDFLatex(passthru) SLOw]
+	COMPile PDFLatex(passthru) SLOw  BYGraphs(string asis) BYVars(varlist) ]
 
 	// Make the sample to use for the program
 	marksample edause, strok novarlist
@@ -205,7 +205,7 @@ prog def eda
 		file write doc "\usepackage[toc,page,titletoc]{appendix}" _n
 		file write doc "\DeclareGraphicsExtensions{.pdf, .png}" _n
 		file write doc `"\graphicspath{{"`root'/graphs/"}}"' _n
-		file write doc `"\title{Exploratory Data Analysis of: \\ $S_FN}"'  _n
+		file write doc `"\title{Exploratory Data Analysis of: \\ \normalsize{$S_FN}}"'  _n
 		file write doc `"\author{`authorname'}"' _n
 		file write doc "\let\mypdfximage\pdfximage" _n
 		file write doc "\def\pdfximage{\immediate\mypdfximage}" _n
@@ -272,7 +272,6 @@ prog def eda
 
 		} // End IF Block for histograms
 
-
 		// Check for distroplots option
 		if "`distroplots'" != "nodistroplots" & !inlist(`contvarcount', 0, .) {
 
@@ -314,7 +313,6 @@ prog def eda
 
 		} // End IF Block for bubble plots
 
-
 		// Check distro plots again
 		if "`distroplots'" != "nodistroplots" & !inlist(`contvarcount', 0, .) {
 
@@ -323,8 +321,7 @@ prog def eda
 			`scheme' `keepgph' distrop(`distroplotopts')
 
 		} // End IF Block for quantile-quantile plots
-
-				
+	
 		// Option to generate box plots
 		if "`boxplots'" != "noboxplots" & (!inlist(`contvarcount', 0, .) & 	 ///   
 		!inlist(`catvarcount', 0, .)) {
@@ -335,7 +332,6 @@ prog def eda
 			
 		} // End IF Block for box plots
 
-
 		// Check for mosiac/spine plots
 		if "`mosaic'" != "nomosaic" & !inlist(`catvarcount', 0, .) {
 
@@ -344,7 +340,6 @@ prog def eda
 			`missing' `percent'	`keepgph'
 
 		} // End IF Block for mosaic plot creation
-
 
 		// Check for correlation heatmap option
 		if "`heatmap'" != "noheatmap" & !inlist(`contvarcount', 0, .) {
@@ -368,7 +363,7 @@ prog def eda
 			texclean `"`: var l `v''"'
 			
 			// Relabel the variable
-			la var `v' `"`r(clntex'"'
+			la var `v' `"`r(clntex)'"'
 			
 		} // End Loop to relabel variables
 
@@ -377,23 +372,37 @@ prog def eda
 
 			// Add categorical variable header
 			file write doc "\subsection{Categorical Variables} \newpage\clearpage" _n
+
+			// Set counter to force page dumps from LaTeX
+			loc counter = 0
 			
 			// Create statistical summaries of all categorical variables
 			foreach v of var `categorical' {
+			
+				// Increment counter
+				loc counter = `counter' + 1
 
 				// Use estpost to post the results of the tabulation
 				qui: estpost ta `v' if `edause', mi notot
-
+				
 				// Export table to LaTeX file
 				esttab . using `"`root'/tables/tab`v'.tex"', uns noobs 		 ///   
 				longtable varlabels(`e(labels)') eql("`v'") ml(, none) 		 ///   
 				nonum cells("b pct(fmt(a3))") replace						 ///   
-				coll("Frequency" "Percentage") ti(`"Distribution of `v'"')
+				coll("Frequency" "Percentage") ti(`"Distribution of `: var l `v''"')
 				
 				// Add the table to the LaTeX document
-				file write doc "\begin{table}[h]" _n
-				file write doc `"\input{"`root'/tables/tab`v'"}"' _n
+				file write doc "\begin{table}" _n
+				file write doc `"\input{`root'/tables/tab`v'.tex}"' _n
 				file write doc "\end{table}" _n
+				
+				// Check if there are three floats 
+				if mod(`counter',  3) == 0 {
+				
+					// Add a page break
+					file write doc "\clearpage" _n
+				
+				} // End IF Block to process floats
 
 			} // End Loop to build one-way tables
 
@@ -403,9 +412,15 @@ prog def eda
 			// Generate all of the two-way permutations
 			tuples `categorical', asis min(2) max(2)
 
+			// Set counter to force page dumps from LaTeX
+			loc counter = 0
+			
 			// Create two-way tables 
 			forv i = 1/`ntuples' { 
 					
+				// Increment counter
+				loc counter = `counter' + 1
+
 				// Get the first variable
 				loc one : word 1 of `tuple`i''
 				
@@ -420,12 +435,20 @@ prog def eda
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("b pct(fmt(a3)) colpct(fmt(a3)) rowpct(fmt(a3))") 	 ///   
 				coll("Frequency" "Overall\%" "Column\%" "Row\%") noobs uns 	 ///   
-				longtable ti(`"Distribution of `one' by `two'"')
+				longtable ti(`"Distribution of `: var l `one'' by `: var l `two''"')
 
 				// Add the table to the LaTeX document
-				file write doc "\begin{table}[h]" _n
-				file write doc `"\input{"`root'/tables/tab`one'`two'"}"' _n
+				file write doc "\begin{table}" _n
+				file write doc `"\input{`root'/tables/tab`one'`two'.tex}"' _n
 				file write doc "\end{table}" _n
+
+				// Check if there are three floats 
+				if mod(`counter', 3) == 0 {
+				
+					// Add a page break
+					file write doc "\clearpage" _n
+				
+				} // End IF Block to process floats
 
 			} // End Loop for two way tables
 
@@ -443,30 +466,31 @@ prog def eda
 			qui: estpost su `continuous' if `edause', de  quietly
 
 			// Create LaTeX table of parametric descriptive stats
-			esttab . using `"`root'/tables/descriptives.tex"', nonum nodep nomti ///   
-			noobs ti("Descriptive Statistics of Continuous Variables") 			 ///   
-			cells("count mean(fmt(3)) sd(fmt(3))") label replace longtable 		 ///   
-			varlabels(`e(labels)') collab("N" "$\mu$" "$\sigma$")				 ///   
+			esttab . using `"`root'/tables/descriptives.tex"', nonum nodep   ///   
+			nomti noobs ti("Descriptive Statistics of Continuous Variables") ///   
+			cells("count mean(fmt(3)) sd(fmt(3))") label replace longtable 	 ///   
+			varlabels(`e(labels)') collab("N" "$\mu$" "$\sigma$")			 ///   
 			addn("$\mu$ = Average $\sigma$ = Standard Deviation")
 
 			// Create summary statistics table for continuous variables
 			qui: estpost su `continuous' if `edause', de  quietly
 
 			// Create table of higher order moment conditions
-			esttab . using `"`root'/tables/higherorder.tex"', nodep nomti noobs  ///   
-			label cells("skewness(fmt(3)) kurtosis(fmt(3))") replace nonum 		 ///   
-			collab("Skewness" "Kurtosis") longtable varlabels(`e(labels)')		 ///   
-			ti("Higher Order Moment Conditions")  	
+			esttab . using `"`root'/tables/higherorder.tex"', nodep nomti    ///   
+			label cells("skewness(fmt(3)) kurtosis(fmt(3))") replace nonum 	 ///   
+			collab("Skewness" "Kurtosis") longtable varlabels(`e(labels)')	 ///   
+			ti("Higher Order Moment Conditions") noobs
 			
 			// Create summary statistics table for continuous variables
 			qui: estpost su `continuous' if `edause', de  quietly
 
 			// Create LaTeX table of non-parametric stats
-			esttab . using `"`root'/tables/orderstats.tex"', nodep nomti noobs 	 ///   
-			label ti("Order Statistics") nonum replace varlabels(`e(labels)') 	 ///   
-			longtable collab("Min." "25\%ile" "Median" "75\%ile" "Max")			 ///   
+			esttab . using `"`root'/tables/orderstats.tex"', nodep nomti  	 ///   
+			label ti("Order Statistics") nonum  varlabels(`e(labels)') 		 ///   
+			longtable collab("Min." "25\%ile" "Median" "75\%ile" "Max")		 ///   
 			cells("min(fmt(3)) p25(fmt(3)) p50(fmt(3)) p75(fmt(3)) max(fmt(3))") ///
-			addn("This is also known as Tukey's Five Number Summary")
+			addn("This is also known as Tukey's Five Number Summary") 		 ///   
+			noobs replace
 			
 			// Create correlation matrix
 			// estpost correlate `continuous', matrix
@@ -475,15 +499,16 @@ prog def eda
 			// esttab . using correlationtable.tex, not unstack compress noobs
 
 			// Add both tables to LaTeX document
-			file write doc "\begin{table}[h]" _n
-			file write doc `"\input{"`root'/tables/descriptives"}"' _n
+			file write doc "\begin{table}" _n
+			file write doc `"\input{`root'/tables/descriptives.tex}"' _n
 			file write doc "\end{table}" _n
-			file write doc "\begin{table}[h]" _n
-			file write doc `"\input{"`root'/tables/higherorder"}"' _n
+			file write doc "\begin{table}" _n
+			file write doc `"\input{`root'/tables/higherorder.tex}"' _n
 			file write doc "\end{table}" _n
-			file write doc "\begin{table}[h]" _n
-			file write doc `"\input{"`root'/tables/orderstats"}"' _n
-			file write doc "\end{table}"
+			file write doc "\begin{table}" _n
+			file write doc `"\input{`root'/tables/orderstats.tex}"' _n
+			file write doc "\end{table}" _n
+			file write doc "\clearpage" _n
 
 		} // End IF Block for continuous variables
 		
@@ -496,26 +521,26 @@ prog def eda
 			// Set the maximum matrix size to prevent a matsize error in the loop below
 			set matsize 11000
 
+			// Increment counter
+			loc counter = 0
+
 			// Create conditional descriptive statistics
 			foreach cat of var `categorical' {
+
+				// Increment counter
+				loc counter = `counter' + 1
 
 				// Get means/SDs for each category in variable cat
 				qui: estpost tabstat `continuous' if `edause', by(`cat') 	 ///   
 				s(mean) c(s) 
 
-				// Get cleaned categorical variable name
-				texclean "`cat'", r
-				
-				// Store name in cref
-				loc cref `r(clntex)'
-
 				// Create the output table
 				esttab . using `"`root'/tables/condmean`cat'.tex"', label 	 ///   
 				nomti nonum main(mean) nostar uns longtable replace			 ///   
-				coll(`e(labels)') ti("Averages by groups of `cref'")
+				coll(`e(labels)') ti("Averages by groups of `: var l `cat''")
 				
 				// Add table to LaTeX document
-				file write doc "\begin{table}[h]" _n
+				file write doc "\begin{table}" _n
 				file write doc `"\input{"`root'/tables/condmean`cat'"}"' _n
 				file write doc "\end{table}" _n
 				
@@ -525,13 +550,21 @@ prog def eda
 				// Create the output table
 				esttab . using `"`root'/tables/condsd`cat'.tex"', label 	 ///   
 				nomti nonum main(sd) nostar uns longtable replace			 ///   
-				coll(`e(labels)') ti("Standard Deviations by groups of `cref'")
+				coll(`e(labels)') ti("Standard Deviations by groups of `: var l `cat''")
 
 				// Add table to LaTeX document
-				file write doc "\begin{table}[h]" _n
+				file write doc "\begin{table}" _n
 				file write doc `"\input{"`root'/tables/condsd`cat'"}"' _n
 				file write doc "\end{table}" _n
 				
+				// Check if there are three floats 
+				if mod(`counter', 3) == 0 {
+				
+					// Add a page break
+					file write doc "\clearpage" _n
+				
+				} // End IF Block to process floats
+
 			} // End Loop for conditional descriptive statistics	
 
 		} // End IF Block for categorical and continuous variables	
@@ -546,7 +579,7 @@ prog def eda
 		if "`compile'" != "" {
 
 			// Create bash/batch script to compile source
-			maketexcomp "`root'/`output'.tex", scr(`"`root'/makeLaTeX"')	 ///   
+			maketexcomp "`root'/`output'", scr(`"`root'/makeLaTeX"')	 ///   
 			`pdflatex'
 			
 			// Local with code to execute compiler script
