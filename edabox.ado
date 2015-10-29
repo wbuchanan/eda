@@ -34,11 +34,13 @@ prog def edabox
 	// Set up a counter macro
 	loc boxcount = 0
 
-	file write doc "\subsubsection{Box Plots}" _n
+	file write doc "\subsection{Box Plots}" _n
 
 	// Loop over all the categorical variables
 	foreach ct of var `cat' {
 
+		file write doc `"\subsubsection{Distributions by `ct'}"' _n
+		
 		// Get variable label for categorical variable
 		loc catlab : var label `ct'
 

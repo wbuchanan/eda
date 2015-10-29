@@ -7,13 +7,13 @@
 *	  the LaTeX source document.											   *
 *                                                                              *
 * Lines -                                                                      *
-*     597                                                                      *
+*     691                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! eda
 *! v 0.0.0
-*! 28OCT2015
+*! 29OCT2015
 
 // If you don't have the tuples program installed you may want to do that
 // ssc inst tuples, replace
@@ -30,8 +30,8 @@ prog def eda
 	syntax [varlist] [using/] [if] [in], Output(string) Root(string)		 ///   
 	[ IDvars(varlist) STRok STRok2(varlist) MINNsize(passthru) 				 ///   
 	MINCat(passthru) MAXCat(passthru) CATVars(passthru) CONTVars(passthru) 	 ///   
-	AUTHorname(string) MISSing scheme(passthru) keepgph PERCent 			 ///   
-	GRLABLength(int 50) noBARGRaphs BARGRAphopts(string asis)				 ///   
+	AUTHorname(string) REPOrtname(string) MISSing scheme(passthru) keepgph 	 ///   
+	PERCent GRLABLength(passthru) noBARGRaphs BARGRAphopts(string asis)		 ///   
 	noPIECharts PIECHartopts(string asis) noHISTOgrams 						 ///   
 	HISTOGramopts(string asis) KDENSity KDENSOpts(string asis) FIVENUMsum 	 ///   
 	FNSOpts(string asis) noDISTROplots DISTROPlotopts(string asis) 			 ///   
@@ -67,6 +67,14 @@ prog def eda
 		loc authorname `c(username)'
 		
 	} // End IF Block for author name
+	
+	// Check for report name
+	if `"`reportname'"' == "" {
+	
+		// Get file name
+		loc reportname $S_FN
+		
+	} // End IF Block for null report name
 	
 	// Check slow option
 	if "`slow'" != "" {
@@ -175,7 +183,7 @@ prog def eda
 
 		// Classify variables as continuous or categorical
 		catorcont `numvars', `minnsize' `mincat' `maxcat' `contvars' 		 ///   
-		`catvars' `missing'
+		`catvars' `missing' `grlablength'
 
 		// Store continuous variables
 		loc continuous `r(cont)'
@@ -190,14 +198,17 @@ prog def eda
 		loc catvarcount `: word count `categorical''
 
 		// Add characteristics to variables to split the var labels for titles
-		grlabsplit `continuous' `categorical', grlablength(`grlablength') 
+		grlabsplit `continuous' `categorical', `grlablength'
 
 		// Create a new LaTeX File
 		file open doc using `"`root'/`output'.tex"', w replace
 
 		// Write a LaTeX file Heading
-		file write doc "\documentclass[12pt,oneside,final,letterpaper]{article}" _n
+		file write doc "\documentclass[12pt,oneside,fleqn,final,letterpaper]{report}" _n
 		file write doc "\usepackage{pdflscape}" _n
+		file write doc `"\usepackage{tocloft}"' _n
+		file write doc `"\usepackage{titlesec}"' _n
+		file write doc `"\usepackage{fixltx2e}"' _n
 		file write doc "\usepackage[letterpaper,margin=0.25in]{geometry}" _n
 		file write doc "\usepackage{graphicx}" _n
 		file write doc "\usepackage[hidelinks]{hyperref}" _n
@@ -205,16 +216,35 @@ prog def eda
 		file write doc "\usepackage[toc,page,titletoc]{appendix}" _n
 		file write doc "\DeclareGraphicsExtensions{.pdf, .png}" _n
 		file write doc `"\graphicspath{{"`root'/graphs/"}}"' _n
-		file write doc `"\title{Exploratory Data Analysis of: \\ \normalsize{$S_FN}}"'  _n
+		file write doc `"\title{Exploratory Data Analysis of: \\ \normalsize{`reportname'}}"'  _n
 		file write doc `"\author{`authorname'}"' _n
 		file write doc "\let\mypdfximage\pdfximage" _n
 		file write doc "\def\pdfximage{\immediate\mypdfximage}" _n
+		file write doc `"\titleformat{\chapter}[display]"' _n 
+		file write doc `"{\centering\normalfont\normalsize\bfseries}{\chaptertitlename\ \thechapter.}{5pt}{}"' _n 
+		file write doc `"\titleformat{\section}[display]"' _n 
+		file write doc `"{\centering\normalfont\normalsize\bfseries}{}{0pt}{}"' _n 
+		file write doc `"\titleformat{\subsection}[hang]"' _n 
+		file write doc `"{\normalfont\normalsize\bfseries}{}{0pt}{}"' _n 
+		file write doc `"\titleformat{\subsubsection}[runin]"' _n 
+		file write doc `"{\normalfont\normalsize\bfseries}{}{0pt}{}[.\rule{0.5em}{0pt}]"' _n 
+		file write doc `"\titleformat{\paragraph}[runin]"' _n 
+		file write doc `"{\normalfont\normalsize\bfseries\itshape}{}{0pt}{}[.\rule{0.5em}{0pt}]"' _n 
+		file write doc `"\titleformat{\subparagraph}[runin]"' _n 
+		file write doc `"{\normalfont\normalfont\itshape}{}{0pt}{}[.\rule{0.5em}{0pt}]"' _n 
+		file write doc `"\titlespacing{\chapter}{0em}{*0}{*0}"' _n  
+		file write doc `"\titlespacing{\section}{0em}{*0}{*0}"' _n 
+		file write doc `"\titlespacing{\subsection}{0em}{*0}{*0}"' _n 
+		file write doc `"\titlespacing{\subsubsection}{1.5em}{*0}{*0}"' _n  
+		file write doc `"\titlespacing{\paragraph}{1.5em}{*0}{*0}"' _n 
+		file write doc `"\setcounter{tocdepth}{5}"' _n 
+		file write doc `"\setcounter{LTchunksize}{50}"' _n 
 		file write doc "\begin{document}" _n
 		file write doc "\begin{titlepage} \maketitle \end{titlepage}" _n
 		file write doc "\newpage\clearpage \tableofcontents \newpage\clearpage" _n
 		file write doc "\listoffigures \newpage\clearpage" _n 
 		file write doc "\listoftables \newpage\clearpage" _n
-		file write doc "\section{Graphs} \newpage\clearpage" _n
+		file write doc "\chapter{Graphs} \newpage\clearpage" _n
 		file write doc "\begin{landscape}" _n
 
 		// Make sure the data are stored more efficiently
@@ -236,10 +266,10 @@ prog def eda
 		*/
 		
 		// Add entry for univariate distributions
-		file write doc "\subsection{Univariate Distributions} \newpage\clearpage" _n
+		file write doc "\section{Univariate Distributions} \newpage\clearpage" _n
 
 		// Add subsubsection header for categorical data
-		file write doc "\subsubsection{Categorical Variables} \newpage\clearpage" _n
+		file write doc "\subsection{Categorical Variables} \newpage\clearpage" _n
 		
 		// Check if user wants bargraphs
 		if "`bargraphs'" != "nobargraphs" & !inlist(`catvarcount', 0, .) {
@@ -260,7 +290,7 @@ prog def eda
 		} // End IF Block for pie charts option
 
 		// Add subheading to the LaTeX file
-		file write doc "\subsubsection{Continuous Variables} \newpage\clearpage" _n
+		file write doc "\subsection{Continuous Variables} \newpage\clearpage" _n
 
 		// Check if user wants histograms
 		if "`histograms'" != "nohistograms" & !inlist(`contvarcount', 0, .) {
@@ -291,7 +321,7 @@ prog def eda
 		} // End IF Block for ladder of power graphs
 
 		// Header for bivariate/conditional distribution graphs
-		file write doc "\subsection{Bivariate Distributions} \newpage\clearpage" _n
+		file write doc "\section{Bivariate Distributions} \newpage\clearpage" _n
 
 		// Check for scatter plot option
 		if "`scatterplots'" != "noscatterplots" & !inlist(`contvarcount', 0, .) {
@@ -354,7 +384,7 @@ prog def eda
 		file write doc "\end{landscape}" _n
 
 		// Create next section/subsection headers
-		file write doc "\section{Descriptive Statistics} \newpage\clearpage" _n
+		file write doc "\chapter{Descriptive Statistics} \newpage\clearpage" _n
 		
 		// Adjust variable labels since they get used in the tables
 		foreach v of var `categorical' `continuous' {
@@ -371,7 +401,7 @@ prog def eda
 		if !inlist(`catvarcount', 0, .) {
 
 			// Add categorical variable header
-			file write doc "\subsection{Categorical Variables} \newpage\clearpage" _n
+			file write doc "\section{Categorical Variables} \newpage\clearpage" _n
 
 			// Set counter to force page dumps from LaTeX
 			loc counter = 0
@@ -381,6 +411,14 @@ prog def eda
 			
 				// Increment counter
 				loc counter = `counter' + 1
+
+				// Will the table require more than 6 columns?
+				if `: char `v'[nvals]' >= 5 {
+						
+					// If so change page orientation	
+					file write doc `"\begin{landscape}"' _n
+					
+				} // End IF Block for wide tables
 
 				// Use estpost to post the results of the tabulation
 				qui: estpost ta `v' if `edause', mi notot
@@ -396,6 +434,14 @@ prog def eda
 				file write doc `"\input{`root'/tables/tab`v'.tex}"' _n
 				file write doc "\end{table}" _n
 				
+				// Will the table require more than 6 columns?
+				if `: char `v'[nvals]' >= 5 {
+						
+					// If so revert page orientation	
+					file write doc `"\end{landscape}"' _n
+					
+				} // End IF Block for wide tables
+
 				// Check if there are three floats 
 				if mod(`counter',  3) == 0 {
 				
@@ -405,9 +451,6 @@ prog def eda
 				} // End IF Block to process floats
 
 			} // End Loop to build one-way tables
-
-			// Change back to portrait page layout
-			file write doc "\begin{landscape}" _n
 
 			// Generate all of the two-way permutations
 			tuples `categorical', asis min(2) max(2)
@@ -429,18 +472,51 @@ prog def eda
 					
 				// Create cross-tabulation
 				qui: estpost ta `one' `two' if `edause', mi notot
+				
+				// Will the table require more than 6 columns?
+				if `: char `two'[nvals]' >= 5 {
+						
+					// If so change page orientation	
+					file write doc `"\begin{landscape}"' _n
+					
+				} // End IF Block for wide tables
 
-				// Export it to LaTeX
+				// Export frequency cross tab to file
 				esttab . using `"`root'/tables/tab`one'`two'.tex"', replace  ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
-				cells("b pct(fmt(a3)) colpct(fmt(a3)) rowpct(fmt(a3))") 	 ///   
-				coll("Frequency" "Overall\%" "Column\%" "Row\%") noobs uns 	 ///   
-				longtable ti(`"Distribution of `: var l `one'' by `: var l `two''"')
+				cells("b") coll("Frequency") noobs uns longtable 			 ///   
+				ti(`"Frequency of `: var l `one'' by `: var l `two''"')
+
+				// Export Joint Percentages
+				esttab . using `"`root'/tables/tab`one'`two'.tex"', append   ///   
+				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
+				cells("pct(fmt(a3))") coll("Overall\%") noobs uns longtable  ///   
+				ti(`"Overall \% of `: var l `one'' by `: var l `two''"')
+
+				// Export Column-Wise marginal percentages to file
+				esttab . using `"`root'/tables/tab`one'`two'.tex"', append   ///   
+				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
+				cells("colpct(fmt(a3))") coll("Column\%") noobs uns longtable ///   
+				ti(`"Column \% of `: var l `one'' by `: var l `two''"')
+
+				// Export Row-Wise marginal percentages to file
+				esttab . using `"`root'/tables/tab`one'`two'.tex"', append   ///   
+				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
+				cells("rowpct(fmt(a3))") coll("Row\%") noobs uns longtable 	 ///   
+				ti(`"Row \% of `: var l `one'' by `: var l `two''"')
 
 				// Add the table to the LaTeX document
 				file write doc "\begin{table}" _n
 				file write doc `"\input{`root'/tables/tab`one'`two'.tex}"' _n
 				file write doc "\end{table}" _n
+
+				// Will the table require more than 6 columns?
+				if `: char `two'[nvals]' >= 5 {
+						
+					// If so revert page orientation	
+					file write doc `"\end{landscape}"' _n
+					
+				} // End IF Block for wide tables
 
 				// Check if there are three floats 
 				if mod(`counter', 3) == 0 {
@@ -451,16 +527,14 @@ prog def eda
 				} // End IF Block to process floats
 
 			} // End Loop for two way tables
-
-			// Change back to portrait page layout
-			file write doc "\end{landscape}" _n
 			
 		} // End IF Block for categorical variables	
 
 		// Check for categorical variables
 		if !inlist(`contvarcount', 0, .) {
 
-			file write doc "\subsection{Continuous Variables} \newpage\clearpage" _n	
+			// Add section header in file
+			file write doc "\section{Continuous Variables} \newpage\clearpage" _n	
 
 			// Create summary statistics table for continuous variables
 			qui: estpost su `continuous' if `edause', de  quietly
@@ -526,7 +600,17 @@ prog def eda
 
 			// Create conditional descriptive statistics
 			foreach cat of var `categorical' {
+			
+				file write doc `"\subsection{Tables by groups of `cat'}"' _n
 
+				// Will the table require more than 6 columns?
+				if `: char `cat'[nvals]' >= 5 {
+						
+					// If so change page orientation	
+					file write doc `"\begin{landscape}"' _n
+					
+				} // End IF Block for wide tables
+				
 				// Increment counter
 				loc counter = `counter' + 1
 
@@ -537,7 +621,8 @@ prog def eda
 				// Create the output table
 				esttab . using `"`root'/tables/condmean`cat'.tex"', label 	 ///   
 				nomti nonum main(mean) nostar uns longtable replace			 ///   
-				coll(`e(labels)') ti("Averages by groups of `: var l `cat''")
+				coll(`e(labels)') addn(" ") noobs							 ///   
+				ti("Averages by groups of `: var l `cat''")
 				
 				// Add table to LaTeX document
 				file write doc "\begin{table}" _n
@@ -550,12 +635,21 @@ prog def eda
 				// Create the output table
 				esttab . using `"`root'/tables/condsd`cat'.tex"', label 	 ///   
 				nomti nonum main(sd) nostar uns longtable replace			 ///   
-				coll(`e(labels)') ti("Standard Deviations by groups of `: var l `cat''")
+				coll(`e(labels)')  addn(" ") noobs							 ///   
+				ti("Standard Deviations by groups of `: var l `cat''")
 
 				// Add table to LaTeX document
 				file write doc "\begin{table}" _n
 				file write doc `"\input{"`root'/tables/condsd`cat'"}"' _n
 				file write doc "\end{table}" _n
+				
+				// Will the table require more than 6 columns?
+				if `: char `cat'[nvals]' >= 5 {
+						
+					// If so revert page orientation	
+					file write doc `"\end{landscape}"' _n
+					
+				} // End IF Block for wide tables
 				
 				// Check if there are three floats 
 				if mod(`counter', 3) == 0 {
@@ -580,7 +674,7 @@ prog def eda
 
 			// Create bash/batch script to compile source
 			maketexcomp "`root'/`output'", scr(`"`root'/makeLaTeX"')	 ///   
-			`pdflatex'
+			`pdflatex' root(`root')
 			
 			// Local with code to execute compiler script
 			loc exec `r(comp)'
