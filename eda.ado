@@ -7,13 +7,13 @@
 *	  the LaTeX source document.											   *
 *                                                                              *
 * Lines -                                                                      *
-*     691                                                                      *
+*     755                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! eda
 *! v 0.0.0
-*! 29OCT2015
+*! 30OCT2015
 
 // If you don't have the tuples program installed you may want to do that
 // ssc inst tuples, replace
@@ -39,7 +39,8 @@ prog def eda
 	QFIT2(string asis) LOWess LOWess2(string asis) FPFIT FPFIT2(string asis) ///   
 	LFITCi LFITCi2(string asis) QFITCi QFITCi2(string asis) FPFITCi 		 ///   
 	FPFITCi2(string asis) noBUBBLEplots noBOXplots noMOSAIC noHEATmap 		 ///   
-	COMPile PDFLatex(passthru) SLOw  BYGraphs(string asis) BYVars(varlist) ]
+	COMPile PDFLatex(passthru) BYGraphs(string asis) BYVars(varlist) 		 ///   
+	WEIGHTtype(passthru) ]
 
 	// Make the sample to use for the program
 	marksample edause, strok novarlist
@@ -244,8 +245,6 @@ prog def eda
 		file write doc "\newpage\clearpage \tableofcontents \newpage\clearpage" _n
 		file write doc "\listoffigures \newpage\clearpage" _n 
 		file write doc "\listoftables \newpage\clearpage" _n
-		file write doc "\chapter{Graphs} \newpage\clearpage" _n
-		file write doc "\begin{landscape}" _n
 
 		// Make sure the data are stored more efficiently
 		qui: compress
@@ -265,11 +264,58 @@ prog def eda
 		misstable pattern
 		*/
 		
-		// Add entry for univariate distributions
-		file write doc "\section{Univariate Distributions} \newpage\clearpage" _n
+		// Check for univariate graphs
+		if inlist("", "`bargraphs'", "`piecharts'", "`histograms'", ///   
+		"`distroplots'", "`ladderplots'") == 1 {
+		
+			// Add univariate to macro
+			loc graphs "univariate"
+			
+		} // End IF Block for univariate graphs 
+		
+		// Check for bivariate graphs
+		if inlist("", "`scatterplots'", "`bubbleplots'", "`boxplots'", ///   
+		"`mosaic'", "`heatmap'") == 1 {
+		
+			// Add bivariate to graphs macro
+			loc graphs `graphs' "bivariate"
+			
+		} // End IF Block to check for graphs
+		
+		// If any graphs are going to be drawn
+		if `"`graphs'"' != "" { 
 
-		// Add subsubsection header for categorical data
-		file write doc "\subsection{Categorical Variables} \newpage\clearpage" _n
+			// Add a graphs chapter header and set 
+			file write doc "\chapter{Graphs} \newpage\clearpage" _n
+			
+			// Check for univariate graphs
+			if inlist("univariate", "`: word 1 of `graphs''") == 1 {
+			
+				// Add entry for univariate distributions
+				file write doc "\section{Single Variable Graphs} \newpage\clearpage" _n
+
+			} // End IF Block for univariate graphs
+			
+			// Check for only bivariate graphs
+			else if "`graphs'" == "bivariate" {
+			
+				// Add entry for univariate distributions
+				file write doc "\section{Multi-Variable Graphs} \newpage\clearpage" _n
+				
+			} // End ELSE IF Block for multivariable graphs only
+
+			// Change the page orientation to landscape
+			file write doc "\begin{landscape}" _n
+	
+		} // End IF Block for graphs macro
+
+		// If Block for categorical variable sub header
+		if inlist("", "`bargraphs'", "`piecharts'") {
+
+			// Add subsubsection header for categorical data
+			file write doc "\subsection{Categorical Variables} \newpage\clearpage" _n
+		
+		} // End IF Block for categorical variables sub header
 		
 		// Check if user wants bargraphs
 		if "`bargraphs'" != "nobargraphs" & !inlist(`catvarcount', 0, .) {
@@ -289,9 +335,15 @@ prog def eda
 
 		} // End IF Block for pie charts option
 
-		// Add subheading to the LaTeX file
-		file write doc "\subsection{Continuous Variables} \newpage\clearpage" _n
+	
+		// If Block for continuous variable sub header
+		if inlist("", "`histograms'", "`distroplots'", "`ladderplots'") == 1 {
+		
+			// Add subheading to the LaTeX file
+			file write doc "\subsection{Continuous Variables} \newpage\clearpage" _n
 
+		} // End IF Block for continuous variable sub header
+		
 		// Check if user wants histograms
 		if "`histograms'" != "nohistograms" & !inlist(`contvarcount', 0, .) {
 
@@ -320,9 +372,15 @@ prog def eda
 
 		} // End IF Block for ladder of power graphs
 
-		// Header for bivariate/conditional distribution graphs
-		file write doc "\section{Bivariate Distributions} \newpage\clearpage" _n
+		
+		// If Block for bivariate graphs
+		if "`: word 2 of `graphs''" == "bivariate" {
+		
+			// Header for bivariate/conditional distribution graphs
+			file write doc "\section{Multi-Variable Graphs} \newpage\clearpage" _n
 
+		} // End IF Block for bivariate subheader with univariate graphs
+		
 		// Check for scatter plot option
 		if "`scatterplots'" != "noscatterplots" & !inlist(`contvarcount', 0, .) {
 
@@ -380,9 +438,15 @@ prog def eda
 		} // End IF Block for correlation heatmap option
 
 
-		// Change back to portrait page layout
-		file write doc "\end{landscape}" _n
+		
+		// If any graphs are going to be drawn
+		if `"`graphs'"' != "" { 
 
+			// Change back to portrait page layout
+			file write doc "\end{landscape}" _n
+
+		} // End IF Block to reorient pages after graphs section	
+			
 		// Create next section/subsection headers
 		file write doc "\chapter{Descriptive Statistics} \newpage\clearpage" _n
 		

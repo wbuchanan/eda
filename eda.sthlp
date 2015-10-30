@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.0 27OCT2015}{...}
+{* *! version 0.0.0 30OCT2015}{...}
 {cmd:help eda}
 {hline}
 
@@ -16,6 +16,7 @@ tables used in Exploratory Data Analyses ({help eda##edarefs:Tukey (1977)}. {p_e
 {cmdab:minn:size(}{it:integer}{opt )} {cmdab:min:cat(}{it:integer}{opt )} 
 {cmdab:max:cat(}{it:integer}{opt )} {cmdab:cat:vars(}{it:varlist}{opt )}
 {cmdab:cont:vars(}{it:varlist}{opt )} {cmdab:auth:orname(}{it:string}{opt )} 
+{cmdab:repo:ortname(}{it:string}{opt )} 
 {cmd:scheme(}{it:string}{opt )} {cmd:keepgph} 
 {cmdab:grlabl:ength(}{it:integer}{opt )} {cmdab:miss:ing} {cmdab:perc:ent}
 {cmdab:nobargr:aphs} {cmdab:bargra:phopts(}{it:string}{opt )}
@@ -28,9 +29,10 @@ tables used in Exploratory Data Analyses ({help eda##edarefs:Tukey (1977)}. {p_e
 {cmd:lfit}[({it:string})] {cmd:qfit}[({it:string})]
 {cmd:lowess}[({it:string})] {cmd:fpfit}[({it:string})]
 {cmd:lfitci}[({it:string})] {cmd:qfitci}[({it:string})]
-{cmd:fpfitci}[({it:string})] {cmdab:nobubble:plots}
-{cmdab:nobox:plots} {cmd:nomosaic} {cmdab:noheat:map} 
-{cmdab:comp:ile} {cmdab:pdfl:atex(}{it:string}{opt )} ]
+{cmd:fpfitci}[({it:string})] {cmdab:nobox:plots} {cmd:nomosaic} 
+{cmdab:noheat:map} {cmdab:nobubble:plots} {cmdab:weight:type(}{it:int}{opt )}
+{cmdab:comp:ile} {cmdab:pdfl:atex(}{it:string}{opt )} 
+]
 
 {marker edadesc}{p 2 2 2}{title:{hi:Description}}{p_end}
 
@@ -59,6 +61,30 @@ If these programs are not available, the program will ask if you would like to
 install them.  If any response is no, the program will exit and not continue to 
 run.  If the answer is yes to all, it will install each of the dependencies 
 sequentially. {p_end}
+
+{p 4 4 4}The help file is divided into several segments that hopefully will make 
+it easier for you to find information quickly about the options you need/want to 
+use.  {help eda##edaexplain:Required Arguments} contains information about 
+parameters that must always have a value for the program to run.  {help eda##edaopts:Optional Arguments} 
+is the start of the section of the help file listing all of the optional parameters.  
+{help eda##classify:Variable Classification} contains arguments related to the way 
+the program classifies variables as categorical/continuous. {help eda##edaglobals:Global Options} 
+contains information about options that affect the resulting LaTeX document or the 
+production of graphs on a global scale (e.g., everything the program does).  
+{help eda##edacatdist:Univariate Graphs - Categorical Variables} contains information 
+about the options available for the control/rendering of bar graphs/pie charts.  
+{help eda##edacontdist:Univariate Graphs - Continuous Variables} contains information 
+about the options available for the control/rendering of histograms, ladder of powers 
+graphs, and distribution quality graphs.  {help eda##edascatter:Bivariate Graphs - Continuous Variables} contains 
+information about the production/rendering of scatterplots and the associated smoothers available for 
+scatterplots.  {help eda##edaboxp:Bivariate Graphs - Conditional Distributions} contains the option 
+used to control the production of box plots.  {help eda##edamos:Bivariate Graphs - Categorical Variables} 
+contains information used to control the production of mosaic - or {help eda##edadeps:spineplots}.  
+{help eda##edamvcont:Multivariate Graphs - Continuous Variables} contains information used to 
+control options related to bubble plots and heatmaps.  {help eda##edatex:LaTeX Options} contains 
+information about the options used to automatically compile the LaTeX source code and/or 
+method to specify the path to the LaTeX binary when creating the compilation script. {p_end}
+
 
 {marker edaexplain}{p 2 2 2}{title:{hi:Required Arguments}}{p_end}{break}
 {p 4 4 8}The following options are required for the program to run and must be 
@@ -92,6 +118,7 @@ will use all string variables and with a variable list will only use the variabl
 supplied by the end user.{p_end}
 
 {marker edaclassify}{dlgtab 8 8:Variable Classification}{break}
+{p 20 20 20}{help eda##edasyntax:Syntax} {space 15} {help eda##edadesc:Description} {space 15} {help eda##edaex:Examples} {p_end}{break}
 {p 14 14 14}These options allow the user to control how variables are classified 
 as categorical vs continuous and the minimum number of non-missing values 
 required for a variable to be included in subsequent analysis.  For variable 
@@ -123,9 +150,10 @@ continuous by the program.  If an argument is passed to this and the catvars
 parameter it will override the mincat and maxcat parameters. {p_end}
 
 {marker edaglobals}{dlgtab 8 8:Global Options}{break}
+{p 20 20 20}{help eda##edasyntax:Syntax} {space 15} {help eda##edadesc:Description} {space 15} {help eda##edaex:Examples} {p_end}{break}
 {p 14 14 14}These options affect the performance and/or aesthetics of {hi:all} 
 graphs.  The program was designed specifically to leverage the power/flexibility 
-provided by {net desc brewscheme, from("http://www.paces-consulting.org/stata"): brewscheme}.  
+provided by {stata `"net desc brewscheme, from("http://www.paces-consulting.org/stata")"': brewscheme}.  
 {search brewscheme} provides a flexible interface to help users define customized 
 scheme files with a series of aesthetic adjustments from the default Stata 
 graphics/schemes.  Although not using a scheme will still result in consistent 
@@ -135,6 +163,10 @@ way to control the aesthetics of the graphs created by this program. {p_end}{bre
 {p 14 14 14}{cmdab:auth:orname} is an optional argument used to pass an author 
 name to the LaTeX file Title Page.  If no value is specified the program will 
 use the value returned in the macro c(username).{p_end}
+
+{p 14 14 14}{cmdab:repo:rtname} is an optional argument used to pass a subtitle 
+to the LaTeX file Title page.  If no value is specified the program will use the 
+name of the file currently loaded in memory while the program is being executed. {p_end}
 
 {p 14 14 14}{cmd:scheme} is an option used to pass a scheme argument to all of 
 the underlying graph commands.  I strongly recommend using {search brewscheme} 
@@ -153,6 +185,7 @@ breaks at 50 characters. This is done to help keep titles within the graph
 region and to provide some consistency in the formatting of the titles.  {p_end}
 
 {marker edacatdist}{dlgtab 8 8:Univariate Graphs - Categorical Variables}{break}
+{p 20 20 20}{help eda##edasyntax:Syntax} {space 15} {help eda##edadesc:Description} {space 15} {help eda##edaex:Examples} {p_end}{break}
 {p 14 14 14}{cmdab:miss:ing} is a parameter passed to the bar, boxplot, pie chart, 
 and mosaic plots to include missing values as categories.  It is also used when 
 identifying the number of distinct values a variable may take.{p_end}
@@ -177,6 +210,7 @@ pie charts for categorical variables by {help eda}. {p_end}
 {help graph_pie:pie chart} graph command.{p_end}
 
 {marker edacontdist}{dlgtab 8 8:Univariate Graphs - Continuous Variables}{break}
+{p 20 20 20}{help eda##edasyntax:Syntax} {space 15} {help eda##edadesc:Description} {space 15} {help eda##edaex:Examples} {p_end}{break}
 {p 14 14 14}{cmdab:nohisto:grams} is an option used to suppress the production 
 of histograms for continuous variables by {help eda}. {p_end}
 
@@ -212,6 +246,7 @@ quantiles plot and the second word is used for the Chi squared probability plots
 of ladder of powers graphs for continuous variables by {help eda}. {p_end}
 
 {marker edascatter}{dlgtab 8 8:Bivariate Graphs - Continuous Variables}{break}
+{p 20 20 20}{help eda##edasyntax:Syntax} {space 15} {help eda##edadesc:Description} {space 15} {help eda##edaex:Examples} {p_end}{break}
 {p 14 14 14}{cmdab:noscat:terplots} is an option used to suppress the production 
 of scatterplots for all pairs of continuous variables by {help eda}. {p_end}
 
@@ -253,22 +288,57 @@ options to control the aesthetics for the fractional polynomial smoother and
 confidence intervals can also be passed (see {help twoway_fpfitci:fpfitci} for 
 additional information). {p_end}
 
-{p 14 14 14}{cmdab:nobubble:plots} is an option used to suppress the production 
-of weighted scatterplots - or Bubble Plots - for all pairs of continuous 
-variables by {help eda}. {p_end}
-
+{marker edaboxp}{dlgtab 8 8:Bivariate Graphs - Conditional Distributions}{break}
+{p 20 20 20}{help eda##edasyntax:Syntax} {space 15} {help eda##edadesc:Description} {space 15} {help eda##edaex:Examples} {p_end}{break}
 {p 14 14 14}{cmdab:nobox:plots} is an option used to suppress the production 
 of box and whisker plots for each combination of continuous by categorical 
 variables by {help eda}. {p_end}
 
+{marker edamos}{dlgtab 8 8:Bivariate Graphs - Categorical Variables}{break}
+{p 20 20 20}{help eda##edasyntax:Syntax} {space 15} {help eda##edadesc:Description} {space 15} {help eda##edaex:Examples} {p_end}{break}
 {p 14 14 14}{cmd:nomosaic} is an option used to suppress the production of 
 mosaic - or {help spineplot:spineplots} - for all pairs of categorical variables 
 by {help eda}. {p_end}
 
+{marker edamvcont}{dlgtab 8 8:Multivariate Graphs - Continuous Variables}{break}
+{p 20 20 20}{help eda##edasyntax:Syntax} {space 15} {help eda##edadesc:Description} {space 15} {help eda##edaex:Examples} {p_end}{break}
 {p 14 14 14}{cmdab:noheat:map} is an option used to suppress the production 
 of a heatmap used to illustrate pairwise correlations between all continuous 
 variables by {help eda}. {p_end}
 
+{p 14 14 14}{cmdab:nobubble:plots} is an option used to suppress the production 
+of weighted scatterplots - or Bubble Plots - for all pairs of continuous 
+variables by {help eda}. {p_end}
+
+{p 14 14 14}{cmdab:weight:type} is an optional parameter used to specify a method 
+to transform the weight variable of bubble plots.  The acceptable arguments and 
+their meanings are: {p_end}
+
+{marker edawgts}{col 20}{hline 80}
+{col 20}{hi:Argument} {col 35}{hi: Transformation}
+{col 20}{hline 80}
+{col 20}0{col 35}{it:Raw Data (not transformed)}
+{col 20}1{col 35}{it:Natural Logarithm of the Variable}
+{col 20}2{col 35}{it:Square Root of the Variable}
+{col 20}3{col 35}{it:Exponential Function of the Variable}
+{col 20}4{col 35}{it:Inverse of the Logit Function of the Variable}
+{col 20}5{col 35}{it:Complementary Log Log of the Variable}
+{col 20}6{col 35}{it:Digamma Function of the Variable}
+{col 20}7{col 35}{it:Inverse of the Complementary Log Log of the Variable}
+{col 20}8{col 35}{it:Natural Logarithm of the Gamma Function of the Variable}
+{col 20}9{col 35}{it:Base 10 Logarithm of the Variable}
+{col 20}10{col 35}{it:Log of the Odds-Ratio of the Variable}
+{col 20}11{col 35}{it:2nd Derivative of the Log of the Gamma Function of the Variable}
+{col 20}{hline 80}{break}
+
+{p 14 14 14}The transformations are applied to copies of the original data at 
+runtime and the copies are removed after the graph is created.  Changing the 
+weighting of the variable will affect the scaling of the "bubbles" or points in 
+the weighted scatterplot.  These variables are used as arguments to the {help weight} 
+parameter of the scatterplot commands (specifically entered as {hi:aweight}s).{p_end}
+
+{marker edatex}{dlgtab 8 8:LaTeX Options}{p_end}{break}
+{p 20 20 20}{help eda##edasyntax:Syntax} {space 15} {help eda##edadesc:Description} {space 15} {help eda##edaex:Examples} {p_end}{break}
 {p 14 14 14}{cmdab:comp:ile} is an option used to write a batch (if called from 
 a machine running Windoze) or bash (for any *nix-based system) script to compile 
 the LaTeX source code document and subsequently to execute the script.  If called 
@@ -280,22 +350,58 @@ pdflatex binary.  If pdflatex is already on your operating system's path, you
 should not need to specify this option (the script will just call pdflatex on 
 any *nix-based system or pdflatex.exe on Windoze).{p_end}
 
-{marker edarefs}{p 2 2 2}{title:{hi:References}}{p_end}
-Tukey, J. W. (1977).  {it:Exploratory Data Analysis}.  
+{marker edarefs}{p 2 2 2}{title:{hi:References}}{p_end}{break}
+{p 4 4 4}{help eda##edasyntax:Syntax} {space 15} {help eda##edadesc:Description} {space 15} {help eda##edaex:Examples} {p_end}{break}
+{p 4 4 8}Tukey, J. W. (1977).  {it:Exploratory Data Analysis}.  {p_end}
+
+{marker edaex}{p 2 2 2}{title:{hi:Examples}}{p_end}{break}
+{p 4 4 4}{help eda##edasyntax:Syntax} {space 15} {help eda##edadesc:Description} {space 15} {help eda##edaex:Examples} {p_end}{break}
+{p 4 4 8}All of these examples will assume the same starting point: {stata sysuse auto.dta, clear} 
+since the data set is smaller/easier to manage.  You should also install {search brewscheme} and 
+create an example palette called {hi: edatest} that will be used in the following 
+examples.  My version of this file was created using: {p_end}
+
+{p 8 8 8}brewscheme, scheme(edatest) const(orange) cone(blue) consat(20) scatst(set1) scatc(8) piest(pastel2) piec(6) barst(pastel1) barc(7) linest(accent) linec(7) areast(set2) areac(5) boxst(pastel2) boxc(6) somest(paired) somec(12) {p_end}
+
+{p 4 4 8}The most minimal example is:{p_end}
+
+{p 8 8 8}{stata sysuse auto.dta, clear}{p_end}
+{p 8 8 8}{stata eda, r(`"`c(pwd)'/edaexamples"') o("minexample") comp}{p_end}
+
+{p 4 4 8}To apply the styling from the scheme created above to the graphs, simply 
+pass the name of the scheme to the scheme parameter: {p_end}
+
+{p 8 8 8}{stata eda, r(`"`c(pwd)'/edaexamples"') o("minexample") comp scheme(edatest)}{p_end}
+
+{p 4 4 8}To add reference lines for Tukey's five number summary to histograms:{p_end}
+
+{p 8 8 8}{stata eda, r(`"`c(pwd)'/edaexamples"') o("minexample") comp scheme(edatest) fivenum}{p_end}
+
+{p 4 4 8}To suppress the creation of a heatmap of the correlations: {p_end}
+{p 8 8 8}{stata eda, r(`"`c(pwd)'/edaexamples"') o("minexample") comp scheme(edatest) noheat}{p_end}
+
+{p 4 4 8}To use log transformed variable values for weights in the bubble plots: {p_end}
+{p 8 8 8}{stata eda, r(`"`c(pwd)'/edaexamples"') o("minexample") comp scheme(edatest) weight(1)}{p_end}
+
+{p 4 4 8}To get percentages printed in the bargraphs and pie charts: {p_end}
+{p 8 8 8}{stata eda, r(`"`c(pwd)'/edaexamples"') o("minexample") comp scheme(edatest) perc}{p_end}
+
+{p 4 4 8}To suppress the creation of bar graphs and pie charts: {p_end}
+{p 8 8 8}{stata eda, r(`"`c(pwd)'/edaexamples"') o("minexample") comp scheme(edatest) nobargr nopiec}{p_end}
 
 {marker edaack}{p 2 2 2}{title:{hi:Acknowledgements}}{p_end}
-{p 4 4 8}This program makes use of several user written commands including: {p_end}{break}
+{p 4 4 8}This program makes use of several user written commands including: {p_end}
 
 {marker edadeps}{col 10}{hline 80}
 {col 10}{hi:Program} {col 35}{hi: Authors}
 {col 10}{hline 80}
-{col 10}{{search brewscheme:brewscheme}}{col 35}{it:Billy Buchanan}
-{col 10}{{search tuples:tuples}}{col 35}{it:Joseph N. Luchman & Nick J. Cox}
-{col 10}{{search spineplot:spineplot}}{col 35}{it:Nick J. Cox}
-{col 10}{{search estout:estout}}{col 35}{it:Ben Jann}
-{col 10}{hline 80}{break}
+{col 10}{search brewscheme:brewscheme}{col 35}{it:Billy Buchanan}
+{col 10}{search tuples:tuples}{col 35}{it:Joseph N. Luchman & Nick J. Cox}
+{col 10}{search spineplot:spineplot}{col 35}{it:Nick J. Cox}
+{col 10}{search estout:estout}{col 35}{it:Ben Jann}
+{col 10}{hline 80}
 
-{marker contact}{p 4 4 4}{title:{ul:Author}}{p_end}{break}
+{marker contact}{p 2 2 2}{title:{hi:Author}}{p_end}
 {p 4 4 4}Billy Buchanan {p_end}
 {p 4 4 4}Data Scientist{p_end}
 {p 4 4 4}{browse "http://mpls.k12.mn.us":Minneapolis Public Schools}{p_end}
