@@ -7,13 +7,13 @@
 *	  LaTeX document  														   *
 *                                                                              *
 * Lines -                                                                      *
-*     222                                                                      *
+*     423                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edabubble
-*! v 0.0.0
-*! 30OCT2015
+*! v 0.0.1
+*! 10NOV2015
 
 // Drop program from memory if already loaded
 cap prog drop edabubble
@@ -27,7 +27,7 @@ prog def edabubble
 	// Syntax structure for edabar subroutine
 	syntax varlist(min=3) [if] [in], 	root(string asis)					 ///   
 										[ scheme(passthru) keepgph			 ///   
-										WEIGHTtype(int 0) ]
+										WEIGHTtype(int 0) byvars(varlist) byseq ]
 										
 	// Mark only the observations to use
 	marksample touse
@@ -143,80 +143,281 @@ prog def edabubble
 		} // End ELSE IF Block for natural log weighted plots
 		
 	} // End ELSE Block for valid weight type code
-
-	// Add section header to LaTeX file
-	file write doc "\subsubsection{Bubble Plots}" _n
-
-	// Generate list of all pairwise combination of continuous variables
-	tuples `varlist', asis min(3) max(3)		
-			
-	// Generate scatter plots for all pairwise combinations of continuous variables
-	forv i = 1/`ntuples' {
 	
-		// Use the first element of the tuple for the x-axis
-		loc x : word 1 of `tuple`i''
-		
-		// Use the second element of the tuple for the y-axis
-		loc y : word 2 of `tuple`i''
-		
-		// Use the third element of the tuple to weight the points
-		loc z : word 3 of `tuple`i''
-		
-		// Create a clone of the weight variable
-		qui: g `z'clone = `wgt'(`z')
+	// If no byvars argument is passed
+	if "`byvars'" == "" {
 
-		// Local macro for legend data
-		loc legendlabels label(1 "Scatter Points")
+		// Add section header to LaTeX file
+		file write doc "\subsection{Bubble Plots}" _n
 
-		// Define a macro used to set legend parameters
-		loc leg legend(`legendlabels' symy(1.85) symx(1.85))
+		// Generate list of all pairwise combination of continuous variables
+		tuples `varlist', asis min(3) max(3)		
+				
+		// Generate scatter plots for all pairwise combinations of continuous variables
+		forv i = 1/`ntuples' {
 
-		// Generate the scatterplot
-		tw scatter `y' `x' [aw = `z'clone]  if `touse', 					 ///   
-		xti(`: char `x'[title]') yti(`: char `y'[title]') `leg' `scheme'	 ///   
-		ti(`: char `y'[title]' "and" `: char `x'[title]')			 		 ///   
-		caption("Points Sizes Weighted by " `: char `z'[title]')			 ///   
-		note("Created on: `c(current_date)' at: `c(current_time)'") 
-		
-		// Drop the clone variable
-		drop `z'clone
-		
-		// Export the scatterplot as a .png file
-		qui: gr export `"`root'/graphs/bubble`i'.pdf"', as(pdf) replace
-		
-		// Check if user wants to keep the GPH files
-		if "`keepgph'" != "" {
-		
-			// Define local macro with syntax to remove file
-			qui: gr save `"`root'/graphs/bubble`i'.gph"', replace
+			// Use the first element of the tuple for the x-axis
+			loc x : word 1 of `tuple`i''
 			
-		} // End IF Block to remove .gph files
+			// Use the second element of the tuple for the y-axis
+			loc y : word 2 of `tuple`i''
+			
+			// Use the third element of the tuple to weight the points
+			loc z : word 3 of `tuple`i''
+			
+			// Create a clone of the weight variable
+			qui: g `z'clone = `wgt'(`z')
 
-		// Get LaTeX formatted variable name for use in LaTeX references
-		texclean `"`: var l `y''"'
-		
-		// Store the cleaned y varname in yref
-		loc yref `r(clntex)'
+			// Local macro for legend data
+			loc legendlabels label(1 "Scatter Points")
 
-		// Get LaTeX formatted variable name for use in LaTeX references
-		texclean `"`: var l `x''"'
-		
-		// Store the cleaned x varname in xref
-		loc xref `r(clntex)'
+			// Define a macro used to set legend parameters
+			loc leg legend(`legendlabels' symy(1.85) symx(1.85))
 
-		// Get LaTeX formatted variable name for use in LaTeX references
-		texclean `"`: var l `z''"'
+			// Generate the scatterplot
+			tw scatter `y' `x' [aw = `z'clone]  if `touse', 					 ///   
+			xti(`: char `x'[title]') yti(`: char `y'[title]') `leg' `scheme'	 ///   
+			ti(`: char `y'[title]' "and" `: char `x'[title]')			 		 ///   
+			caption("Points Sizes Weighted by " `: char `z'[title]')			 ///   
+			note("Created on: `c(current_date)' at: `c(current_time)'") 
+			
+			// Drop the clone variable
+			drop `z'clone
+			
+			// Export the scatterplot as a .png file
+			qui: gr export `"`root'/graphs/bubble`i'.pdf"', as(pdf) replace
+			
+			// Check if user wants to keep the GPH files
+			if "`keepgph'" != "" {
+			
+				// Define local macro with syntax to remove file
+				qui: gr save `"`root'/graphs/bubble`i'.gph"', replace
+				
+			} // End IF Block to remove .gph files
+
+			// Get LaTeX formatted variable name for use in LaTeX references
+			texclean `"`: var l `y''"'
+			
+			// Store the cleaned y varname in yref
+			loc yref `r(clntex)'
+
+			// Get LaTeX formatted variable name for use in LaTeX references
+			texclean `"`: var l `x''"'
+			
+			// Store the cleaned x varname in xref
+			loc xref `r(clntex)'
+
+			// Get LaTeX formatted variable name for use in LaTeX references
+			texclean `"`: var l `z''"'
+			
+			// Store the cleaned z varname in zref
+			loc zref `r(clntex)'
+			
+			// Add the scatterplot to the LaTeX document
+			file write doc "\begin{figure}[h!]" _n
+			file write doc `"\caption{Bubble Plot of `yref', `xref', and `zref' \label{fig:bubble`i'}}"' _n
+			file write doc `"\includegraphics[width=\textwidth]{bubble`i'.pdf}"' _n
+			file write doc "\end{figure} \newpage\clearpage" _n
+			
+		} // End Loop over bubble plot permutations
 		
-		// Store the cleaned z varname in zref
-		loc zref `r(clntex)'
+	} // End IF Block for no byvars argument
+	
+	// sequential by graphs
+	else if `"`byvars'"' != "" & "`byseq'" != "" {
+	
+		// Generate list of all pairwise combination of continuous variables
+		tuples `varlist', asis min(3) max(3)		
+
+		// Add section header to LaTeX file
+		file write doc "\subsection{Lattice Bubble Plots}" _n
+				
+		// Loop over the bygroup variables
+		foreach b of var `byvars' {
+	
+			// Get name of the by variable
+			texclean `"`b'"', r
+			
+			// Store by variable name in bref
+			loc bref `r(clntex)'
+			
+			// Clean variable label for facets
+			texclean `: var l `b''
+			
+			// Subsection ti
+			loc subsectionti `r(clntex)'
+			
+			// Add subsubsection
+			file write doc "\subsubsection{`subsectionti' Bubble Plots}" _n
+			
+			// Generate scatter plots for all pairwise combinations of continuous variables
+			forv i = 1/`ntuples' {
+
+				// Use the first element of the tuple for the x-axis
+				loc x : word 1 of `tuple`i''
+				
+				// Use the second element of the tuple for the y-axis
+				loc y : word 2 of `tuple`i''
+				
+				// Use the third element of the tuple to weight the points
+				loc z : word 3 of `tuple`i''
+				
+				// Create a clone of the weight variable
+				qui: g `z'clone = `wgt'(`z')
+
+				// Local macro for legend data
+				loc legendlabels label(1 "Scatter Points")
+
+				// Define a macro used to set legend parameters
+				loc leg legend(`legendlabels' symy(1.85) symx(1.85))
+
+				// Generate the scatterplot
+				cap tw scatter `y' `x' [aw = `z'clone]  if `touse', `leg' 	 ///   
+				xti(`: char `x'[title]') yti(`: char `y'[title]') `scheme'	 ///   
+				by(`bref', ti(`: char `y'[title]' "and" `: char `x'[title]') ///  
+				subti(`"Lattices by `subsectionti'"')						 ///   
+				caption("Points Sizes Weighted by " `: char `z'[title]')	 ///   
+				note("Created on: `c(current_date)' at: `c(current_time)'"))	    
+				
+				// Drop the clone variable
+				drop `z'clone
+				
+				// Check for valid return code
+				if _rc == 0 {
+				
+					// Export the scatterplot as a .png file
+					qui: gr export `"`root'/graphs/bubble`i'By`bref'.pdf"', as(pdf) replace
+					
+					// Check if user wants to keep the GPH files
+					if "`keepgph'" != "" {
+					
+						// Define local macro with syntax to remove file
+						qui: gr save `"`root'/graphs/bubble`i'By`bref'.gph"', replace
+						
+					} // End IF Block to remove .gph files
+
+					// Get LaTeX formatted variable name for use in LaTeX references
+					texclean `"`: var l `y''"'
+					
+					// Store the cleaned y varname in yref
+					loc yref `r(clntex)'
+
+					// Get LaTeX formatted variable name for use in LaTeX references
+					texclean `"`: var l `x''"'
+					
+					// Store the cleaned x varname in xref
+					loc xref `r(clntex)'
+
+					// Get LaTeX formatted variable name for use in LaTeX references
+					texclean `"`: var l `z''"'
+					
+					// Store the cleaned z varname in zref
+					loc zref `r(clntex)'
+					
+					// Add the scatterplot to the LaTeX document
+					file write doc "\begin{figure}[h!]" _n
+					file write doc `"\caption{Bubble Plot of `yref', `xref', and `zref' by `subsectionti' \label{fig:`bref'bubble`i'}}"' _n
+					file write doc `"\includegraphics[width=\textwidth]{bubble`i'By`bref'.pdf}"' _n
+					file write doc "\end{figure} \newpage\clearpage" _n
+
+				} // End IF Block for return code check	
+					
+			} // End Loop over bubble plot permutations
+						
+		} // End Loop over the byvars	
+	
+	} // End ELSEIF Block for sequential by graphs
+	
+	// Lattice graphs
+	else if `"`byvars'"' != "" & "`byseq'" == "" {
+	
+		// Add section header to LaTeX file
+		file write doc "\subsubsection{Bubble Plots}" _n
 		
-		// Add the scatterplot to the LaTeX document
-		file write doc "\begin{figure}[h!]" _n
-		file write doc `"\caption{Bubble Plot of `yref', `xref', and `zref' \label{fig:bubble`i'}}"' _n
-		file write doc `"\includegraphics[width=\textwidth]{bubble`i'.pdf}"' _n
-		file write doc "\end{figure} \newpage\clearpage" _n
+		// Clean bygraph variables
+		texclean `"`byvars'"', r
 		
-	} // End Loop over bubble plot permutations
+		// Store cleaned var names
+		loc bref `r(clntex)'
+
+		// Generate list of all pairwise combination of continuous variables
+		tuples `varlist', asis min(3) max(3)		
+				
+		// Generate scatter plots for all pairwise combinations of continuous variables
+		forv i = 1/`ntuples' {
+
+			// Use the first element of the tuple for the x-axis
+			loc x : word 1 of `tuple`i''
+			
+			// Use the second element of the tuple for the y-axis
+			loc y : word 2 of `tuple`i''
+			
+			// Use the third element of the tuple to weight the points
+			loc z : word 3 of `tuple`i''
+			
+			// Create a clone of the weight variable
+			qui: g `z'clone = `wgt'(`z')
+
+			// Local macro for legend data
+			loc legendlabels label(1 "Scatter Points")
+
+			// Define a macro used to set legend parameters
+			loc leg legend(`legendlabels' symy(1.85) symx(1.85))
+
+			// Generate the scatterplot
+			cap tw scatter `y' `x' [aw = `z'clone]  if `touse', `leg'		 ///   
+			xti(`: char `x'[title]') yti(`: char `y'[title]') `scheme'		 ///   
+			by(`bref', ti(`: char `y'[title]' "and" `: char `x'[title]')	 ///  
+			subti(`"Lattices by `: subinstr loc bref `" "' `", "', all'"')	 ///   
+			caption("Points Sizes Weighted by " `: char `z'[title]')		 ///   
+			note("Created on: `c(current_date)' at: `c(current_time)'"))	    
+			
+			// Drop the clone variable
+			drop `z'clone
+			
+			// Check return code
+			if _rc == 0 {
+			
+				// Export the scatterplot as a .png file
+				qui: gr export `"`root'/graphs/bubble`i'ByGraph.pdf"', as(pdf) replace
+				
+				// Check if user wants to keep the GPH files
+				if "`keepgph'" != "" {
+				
+					// Define local macro with syntax to remove file
+					qui: gr save `"`root'/graphs/bubble`i'ByGraph.gph"', replace
+					
+				} // End IF Block to remove .gph files
+
+				// Get LaTeX formatted variable name for use in LaTeX references
+				texclean `"`: var l `y''"'
+				
+				// Store the cleaned y varname in yref
+				loc yref `r(clntex)'
+
+				// Get LaTeX formatted variable name for use in LaTeX references
+				texclean `"`: var l `x''"'
+				
+				// Store the cleaned x varname in xref
+				loc xref `r(clntex)'
+
+				// Get LaTeX formatted variable name for use in LaTeX references
+				texclean `"`: var l `z''"'
+				
+				// Store the cleaned z varname in zref
+				loc zref `r(clntex)'
+				
+				// Add the scatterplot to the LaTeX document
+				file write doc "\begin{figure}[h!]" _n
+				file write doc `"\caption{Bubble Plot of `yref', `xref', and `zref' \label{fig:bubble`i'ByGraph}}"' _n
+				file write doc `"\includegraphics[width=\textwidth]{bubble`i'ByGraph.pdf}"' _n
+				file write doc "\end{figure} \newpage\clearpage" _n
+				
+			} // End Loop over bubble plot permutations
+			
+		} // End IF Block for return code validation
+				
+	} // End ELSE IF Block for Lattice style graphs
 		
 // End program definition
 end

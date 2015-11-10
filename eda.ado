@@ -39,8 +39,8 @@ prog def eda
 	QFIT2(string asis) LOWess LOWess2(string asis) FPFIT FPFIT2(string asis) ///   
 	LFITCi LFITCi2(string asis) QFITCi QFITCi2(string asis) FPFITCi 		 ///   
 	FPFITCi2(string asis) noBUBBLEplots noBOXplots noMOSAIC noHEATmap 		 ///   
-	COMPile PDFLatex(passthru) BYGraphs(string asis) BYVars(varlist) 		 ///   
-	WEIGHTtype(passthru) ]
+	COMPile PDFLatex(passthru) BYGraphs(string asis) BYVars(passthru) 		 ///   
+	BYSeq WEIGHTtype(passthru) ]
 
 	// Make the sample to use for the program
 	marksample edause, strok novarlist
@@ -437,8 +437,6 @@ prog def eda
 			
 		} // End IF Block for correlation heatmap option
 
-
-		
 		// If any graphs are going to be drawn
 		if `"`graphs'"' != "" { 
 
@@ -446,6 +444,89 @@ prog def eda
 			file write doc "\end{landscape}" _n
 
 		} // End IF Block to reorient pages after graphs section	
+		
+		// Check for by graphs
+		if "`bygraphs'" != "" & "`byvars'" != "" {
+		
+			// Check if user wants bargraphs
+			if "`bargraphs'" != "nobargraphs" & !inlist(`catvarcount', 0, .) ///   
+			& inlist("bar", `"`: subinstr loc bygraphs `" "' `"", ""''"') == 1 {
+
+				// Call Bar graph subroutine
+				edabar `categorical' if `edause', `bargraphopts' `byvars'	 ///   
+				root(`root') bart(`bartype') `scheme' `keepgph' `byseq'
+
+			} // End IF Block for bar graph creation
+			
+			// Check if user wants pie charts
+			if "`piecharts'" != "nopiecharts" & !inlist(`catvarcount', 0, .) ///   
+			& inlist("pie", `"`: subinstr loc bygraphs `" "' `"", ""''"') == 1 {
+
+				// Call Pie chart subroutine
+				edapie `categorical' if `edause', `piechartopts'			 ///   
+				`scheme' `keepgph' root(`root') `byvars' `byseq'
+
+			} // End IF Block for pie charts option
+			
+			// Add subheading to the LaTeX file
+			file write doc "\subsection{Continuous Variables} \newpage\clearpage" _n
+
+			// Check if user wants histograms
+			if "`histograms'" != "nohistograms" & !inlist(`contvarcount', 0, .) ///   
+			& inlist("histogram", `"`: subinstr loc bygraphs `" "' `"", ""''"') == 1 {
+
+				// Call histogram subroutine
+				edahist `continuous' if `edause', `histogramopts' `scheme' 	 ///   
+				`kdensity' kdensopts(`kdensopts') `fivenumsum' `byvars'		 ///   
+				fnsopts(`fnsopts') root(`root') `byseq'
+
+			} // End IF Block for histograms
+
+			// Check for scatter plot option
+			if "`scatterplots'" != "noscatterplots" & !inlist(`contvarcount', 0, .)  ///   
+			& inlist("scatterplot", `"`: subinstr loc bygraphs `" "' `"", ""''"') == 1 {
+
+				// Call to scatterplot subroutine
+				edascat `continuous' if `edause', `lfit' lfit2(`lfit2')	 	 ///   
+				qfit2(`qfit2') `lowess' lowess2(`lowess2') `fpfit' 			 ///   
+				fpfit2(`fpfit2') `lfitci' lfitci2(`lfitci2') `qfitci' 		 ///   
+				qfitci2(`qfitci2') `fpfitci' fpfitci2(`fpfitci2') `qfit'	 ///   
+				`scheme' `keepgph' root(`root') `byvars' `byseq'
+
+			} // End IF Block for scatter plots
+
+			// Check for bubble plots
+			if "`bubbleplots'" != "nobubbleplots" & !inlist(`contvarcount', 0, .)  ///   
+			& inlist("bubble", `"`: subinstr loc bygraphs `" "' `"", ""''"') == 1 {
+
+				// Call subroutine for bubble plots
+				edabubble `continuous' if `edause', `scheme' `keepgph'		 ///   
+				root(`root') `byvars' `byseq'
+
+			} // End IF Block for bubble plots
+
+			// Option to generate box plots
+			if "`boxplots'" != "noboxplots" & (!inlist(`contvarcount', 0, .) ///   
+			& !inlist(`catvarcount', 0, .)) 								 ///   
+			& inlist("boxplot", `"`: subinstr loc bygraphs `" "' `"", ""''"') == 1 {
+
+				// Create Box Plots
+				edabox if `edause', cat(`categorical') cont(`continuous') 	 ///   
+				`scheme' `keepgph'  root(`root') `byvars' `byseq'
+				
+			} // End IF Block for box plots
+
+			// Check for mosiac/spine plots
+			if "`mosaic'" != "nomosaic" & !inlist(`catvarcount', 0, .) 		 ///   
+			& inlist("mosaic", `"`: subinstr loc bygraphs `" "' `"", ""''"') == 1 {
+
+				// Subroutine used to generate mosaic/spine plots
+				edamosaic `categorical' if `edause', `scheme' `missing'  	 ///   
+				`percent'	`keepgph' root(`root') `byvars' `byseq'
+
+			} // End IF Block for mosaic plot creation
+		
+		} // End IF Block for by graphs
 			
 		// Create next section/subsection headers
 		file write doc "\chapter{Descriptive Statistics} \newpage\clearpage" _n
