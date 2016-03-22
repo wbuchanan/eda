@@ -1,0 +1,14 @@
+*! TOC File
+v 3
+d Materials authored/co-authored by Billy Buchanan
+
+p brewscheme A program to develop customized Stata graph schemes based on ColorBrewer palettes
+p d3 A set of Mata classes/methods wrapping the D3js library.
+p edequity_clean A program to collect, clean, and parse State Equity Profile data
+p irscharities A program to obtain data on Tax Exempt Organizations in the US
+p raschjmle A Joint Maximum Likelihood Estimator for Rasch models of dichotomous items
+p eda A Program for automated exploratory data analysis
+
+
+
+
