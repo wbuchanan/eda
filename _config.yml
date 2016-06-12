@@ -1,0 +1,14 @@
+# Site settings
+title: 
+email: William.Buchanan@mpls.k12.mn.us
+description:
+baseurl: "/name" # Name of the repository
+url: "https://wbuchanan.github.io" # the base hostname & protocol for your site
+twitter_username: PACESconsulting
+github_username:  wbuchanan
+
+# Build settings
+markdown: kramdown
+kramdown:
+  input: GFM
+markdown_ext: "markdown,mkdown,mkdn,mkd,md"

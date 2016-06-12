@@ -10,7 +10,7 @@ d KW: Color
 d
 d Requires: Stata version 14
 d
-d Distribution-Date: 20151030
+d Distribution-Date: 20160610
 d
 d Author: Billy Buchanan 
 d		  Data Scientist
@@ -19,8 +19,8 @@ d		  Minneapolis Public Schools
 d Support: email William [dot] Buchanan @t mpls [dot] k12 [dot] mn [dot] us
 d
 f catorcont.ado
+f dirfile.ado
 f eda.ado
-f eda.sthlp
 f edabar.ado
 f edabox.ado
 f edabubble.ado
@@ -36,9 +36,8 @@ f grlabsplit.ado
 f maketexcomp.ado
 f progcheck.ado
 f texclean.ado
-f dirfile.ado
 f eda-example.pdf
-
+f eda.sthlp
 
 
 
