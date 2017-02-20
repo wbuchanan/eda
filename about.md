@@ -4,6 +4,5 @@ title: about
 permalink: /about/
 ---
 
-Started this as a joke when my wife's faculty advisor was trying to make her do bad science and just analyze things without having any formalized theory to test.  Then I started to see how it could be useful in other ways (e.g., run the process at the end of the work day and come into the office in the morning with all sorts of graphs and tables ready to go for you.).  Still have room for improvement and still need to finish `by` group options, but is a reasonably cool idea nonetheless.
-
+`eda` is a Stata package for automating a fair amount of [exploratory data analysis](https://www.amazon.com/Exploratory-Data-Analysis-John-Tukey/dp/0201076160) tasks.  The program allows users to select specific graph types to exclude (or generates all by default) and creates univariate and bivariate graphs and tables for the data in the dataset loaded in memory or referenced with the `using` syntax.  
 

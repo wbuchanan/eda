@@ -34,7 +34,7 @@ prog def edahist
 										keepgph	byvars(varlist) byseq]
 										
 	// Mark only the observations to use
-	marksample touse
+	marksample touse, strok novarlist
 	
 	// No byvars passed to command
 	if `"`byvars'"' == "" {

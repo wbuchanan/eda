@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title></title>
-    <description></description>
-    <link>https://wbuchanan.github.io/name/</link>
-    <atom:link href="https://wbuchanan.github.io/name/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 19 Jun 2016 03:37:31 -0400</pubDate>
-    <lastBuildDate>Sun, 19 Jun 2016 03:37:31 -0400</lastBuildDate>
-    <generator>Jekyll v3.1.2</generator>
+    <title>Automated Exploratory Data Analysis</title>
+    <description>GitHub Pages site for the Stata package eda</description>
+    <link>https://wbuchanan.github.io/eda/</link>
+    <atom:link href="https://wbuchanan.github.io/eda/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Mon, 20 Feb 2017 15:55:42 -0500</pubDate>
+    <lastBuildDate>Mon, 20 Feb 2017 15:55:42 -0500</lastBuildDate>
+    <generator>Jekyll v3.3.1</generator>
     
       <item>
         <title>EDA Project Page</title>
-        <description>&lt;p&gt;Started building out project page for &lt;code&gt;eda&lt;/code&gt;.&lt;/p&gt;
+        <description>&lt;p&gt;Started building out project page for &lt;code class=&quot;highlighter-rouge&quot;&gt;eda&lt;/code&gt;.&lt;/p&gt;
 </description>
         <pubDate>Tue, 14 Jun 2016 02:22:00 -0400</pubDate>
-        <link>https://wbuchanan.github.io/name/post/2016/06/14/eda-project-page.html</link>
-        <guid isPermaLink="true">https://wbuchanan.github.io/name/post/2016/06/14/eda-project-page.html</guid>
+        <link>https://wbuchanan.github.io/eda/post/2016/06/14/eda-project-page.html</link>
+        <guid isPermaLink="true">https://wbuchanan.github.io/eda/post/2016/06/14/eda-project-page.html</guid>
         
         
         <category>post</category>

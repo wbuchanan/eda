@@ -1,10 +1,10 @@
 # Site settings
-title: 
-email: William.Buchanan@mpls.k12.mn.us
-description:
-baseurl: "/name" # Name of the repository
+title: Automated Exploratory Data Analysis
+email: Billy.Buchanan@fayette.kyschools.us
+description: GitHub Pages site for the Stata package eda
+baseurl: "/eda" # Name of the repository
 url: "https://wbuchanan.github.io" # the base hostname & protocol for your site
-twitter_username: PACESconsulting
+twitter_username: 
 github_username:  wbuchanan
 
 # Build settings

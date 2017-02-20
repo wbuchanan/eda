@@ -30,7 +30,7 @@ prog def edabubble
 										WEIGHTtype(int 0) byvars(varlist) byseq ]
 										
 	// Mark only the observations to use
-	marksample touse
+	marksample touse, strok novarlist
 	
 	// Invalid weight code
 	if !inrange(`weighttype', 0, 11) {

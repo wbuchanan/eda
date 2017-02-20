@@ -29,7 +29,7 @@ prog def edabox
 					  [ scheme(passthru) keepgph MISSing byvars(varlist) byseq ]
 										
 	// Mark only the observations to use
-	marksample touse
+	marksample touse, strok novarlist
 	
 	// If no byvars argument is passed
 	if "`byvars'" == "" {
@@ -41,7 +41,7 @@ prog def edabox
 
 		// Loop over all the categorical variables
 		foreach ct of var `cat' {
-
+				
 			file write doc `"\subsubsection{Distributions by `ct'}"' _n
 			
 			// Get variable label for categorical variable
@@ -50,6 +50,16 @@ prog def edabox
 			// Loop over all of the continuous variables
 			foreach cnt of var `cont' { 
 			
+				qui: levelsof `ct', loc(categoryvalues)
+				loc obexclude 
+				foreach v of loc categoryvalues {
+					qui: su `cnt' if `ct' == `v'
+					if `r(N)' <= 5 loc obexclude `obexclude' `v'
+				}
+				if length("`obexclude'") != 0 {
+					loc obexclude & !inlist(`ct', `: subinstr loc obexclude " " ", ", all')
+				}
+				
 				// Define a macro used to set legend parameters
 				loc leg legend(rows(`:char `ct'[lrows]') symy(1.85) symx(1.85))
 
@@ -57,7 +67,7 @@ prog def edabox
 				loc boxcount = `boxcount' + 1
 				
 				// Generate Box plot
-				gr box `cnt' if `touse', over(`ct') asyvars	`scheme' yti("")	 ///   
+				gr box `cnt' if `touse' `obexclude', over(`ct') asyvars	`scheme' yti("")	 ///   
 				ti(`: char `cnt'[title]' "vs" `: char `ct'[title]')	`missing'	 ///  
 				note("Created on: `c(current_date)' at: `c(current_time)'") `leg'
 							
@@ -143,6 +153,16 @@ prog def edabox
 				// Loop over all of the continuous variables
 				foreach cnt of var `cont' { 
 				
+					qui: levelsof `ct', loc(categoryvalues)
+					loc obexclude 
+					foreach v of loc categoryvalues {
+						qui: su `cnt' if `ct' == `v'
+						if `r(N)' == 0 loc obexclude `obexclude' `v'
+					}
+					if length("`obexclude'") != 0 {
+						loc obexclude & !inlist(`ct', `: subinstr loc obexclude " " ", ", all')
+					}
+
 					// Define a macro used to set legend parameters
 					loc leg legend(rows(`:char `ct'[lrows]') symy(1.85) symx(1.85))
 
@@ -150,7 +170,7 @@ prog def edabox
 					loc boxcount = `boxcount' + 1
 					
 					// Generate Box plot
-					cap gr box `cnt' if `touse', over(`ct') asyvars	`scheme' ///   
+					cap gr box `cnt' if `touse' `obexclude', over(`ct') asyvars	`scheme' ///   
 					yti("")	`leg' `missing'	by(`bref', 						 ///   
 					ti(`: char `cnt'[title]' "vs" `: char `ct'[title]')		 ///  
 					note("Created on: `c(current_date)' at: `c(current_time)'"))
@@ -228,6 +248,16 @@ prog def edabox
 			// Loop over the bygroup variables
 			foreach b of var `byvars' {
 		
+				qui: levelsof `ct', loc(categoryvalues)
+				loc obexclude 
+				foreach v of loc categoryvalues {
+					qui: su `cnt' if `ct' == `v'
+					if `r(N)' == 0 loc obexclude `obexclude' `v'
+				}
+				if length("`obexclude'") != 0 {
+					loc obexclude & !inlist(`ct', `: subinstr loc obexclude " " ", ", all')
+				}
+
 				// Get name of the by variable
 				texclean `"`b'"', r
 				
@@ -247,7 +277,7 @@ prog def edabox
 					loc boxcount = `boxcount' + 1
 					
 					// Generate Box plot
-					cap gr box `cnt' if `touse', over(`ct') asyvars	`scheme' ///   
+					cap gr box `cnt' if `touse' `obexclude', over(`ct') asyvars	`scheme' ///   
 					yti("")	`leg' `missing'	by(`bref', 						 ///   
 					ti(`: char `cnt'[title]' "vs" `: char `ct'[title]')		 ///  
 					note("Created on: `c(current_date)' at: `c(current_time)'"))

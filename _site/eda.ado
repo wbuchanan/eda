@@ -44,7 +44,7 @@ prog def eda
 
 	// Make the sample to use for the program
 	marksample edause, strok novarlist
-
+	
 	// Check percentage option
 	if "`percent'" == "" {
 
@@ -97,13 +97,13 @@ prog def eda
 		} // End IF Block for using file
 			
 		// Build root directory
-		dirfile, p(`"`root'"') rebuild
+		dirfile `root', p("graphs") rebuild
 
 		// Build graphs subdirectory
-		dirfile, p(`"`root'/graphs"') 
+		// dirfile, p(`"`root'/graphs"') 
 
 		// Build subdirectory for tables
-		dirfile, p(`"`root'/tables"') 
+		dirfile `root', p("tables") rebuild
 
 		// Check for variable list for strings OK
 		if `"`strok'"' != "" & `"`strok2'"' != "" {
@@ -182,10 +182,13 @@ prog def eda
 			
 		} // End IF Block for varlist argument
 
+		// Allocates namespace for tempfile name
+		tempfile edatemp
+		
 		// Classify variables as continuous or categorical
 		catorcont `numvars', `minnsize' `mincat' `maxcat' `contvars' 		 ///   
 		`catvars' `missing' `grlablength'
-
+		
 		// Store continuous variables
 		loc continuous `r(cont)'
 
@@ -201,6 +204,9 @@ prog def eda
 		// Add characteristics to variables to split the var labels for titles
 		grlabsplit `continuous' `categorical', `grlablength'
 
+		// Saves tempfile with characteristics in the data set
+		qui: save `edatemp'.dta, replace
+		
 		// Create a new LaTeX File
 		file open doc using `"`root'/`output'.tex"', w replace
 
@@ -319,7 +325,7 @@ prog def eda
 		
 		// Check if user wants bargraphs
 		if "`bargraphs'" != "nobargraphs" & !inlist(`catvarcount', 0, .) {
-
+		
 			// Call Bar graph subroutine
 			edabar `categorical' if `edause', root(`root') `bargraphopts' 	 ///   
 											  bart(`bartype') `scheme' `keepgph'
@@ -430,10 +436,13 @@ prog def eda
 		} // End IF Block for mosaic plot creation
 
 		// Check for correlation heatmap option
-		if "`heatmap'" != "noheatmap" & !inlist(`contvarcount', 0, .) {
+		if "`heatmap'" != "noheatmap" & !inlist(`contvarcount', 0, ., 1, 2) {
 
 			// Create heatmap from continuous variables
 			edaheat `continuous' if `edause', root(`root') `keepgph'
+
+			// Reloads the tempfile with the characteristics saved
+			qui: use `edatemp'.dta, clear
 			
 		} // End IF Block for correlation heatmap option
 
@@ -556,7 +565,7 @@ prog def eda
 			
 				// Increment counter
 				loc counter = `counter' + 1
-
+				
 				// Will the table require more than 6 columns?
 				if `: char `v'[nvals]' >= 5 {
 						

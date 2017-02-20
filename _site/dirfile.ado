@@ -13,13 +13,13 @@
 *     void																	   *
 *                                                                              *
 * Lines -                                                                      *
-*     121                                                                      *
+*     134                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! dirfile
-*! v 0.0.3
-*! 04NOV2015
+*! v 0.0.6
+*! 09NOV2016
 
 // Drop the program from memory if loaded
 cap prog drop dirfile
@@ -31,92 +31,106 @@ prog def dirfile
 	version 13
 	
 	// Syntax for calling the program
-	syntax , Path(string) [ REBuild ]
+	syntax [anything(name = root id = "Root directory")], [ Path(string) REBuild ]
+	
+	// Default value for path parameter
+	if `"`path'"' == "" loc pmatch "*"
+	
+	// Passes the value from the path parameter to be used in extended macro function
+	else loc pmatch `path'
 	
 	// Check for file path existence
-	cap confirm new file `"`path'"'
+	qui: loc newfile : dir "`root'" dirs "`pmatch'", respectcase
 	
+	// Clean up quotation marks
+	loc newfile : list clean newfile
+
 	// Doesn't exist create it
-	if _rc == 0 {
-	
-		// Make the directory
-		mkdir `"`path'"'
-		
-		// Print message to the console (mostly for debugging)
-		di as res `"The directory `path' was successfully created."'
-	
-	} // End IF Block for non-existent file path
+	if `"`newfile'"' == "" mkdir `"`root'/`path'"'
 	
 	// Does exist and user wants to rebuild the directory
-	else if _rc == 602 & "`rebuild'" != "" {
+	else if `"`newfile'"' != "" & "`rebuild'" != "" chksubdir `root'/`newfile'
+			
+	// If directory exists but user does not want to rebuild	
+	else di as res "Directory exists and rebuild option not specified.  No further action"
+				
+// End of program definition		
+end 
+
+
+// Defines subroutine to check for files in subdirectories and remove them
+prog def chksubdir
+
+	// Defines syntax for calling the subroutine
+	syntax anything(name = subdirnm id = "Subdirectory name")
 	
-		// Get all the files in the directory
-		loc dirfiles : dir `"`path'"' files "*", respectcase
+	// Check for any subdirectories
+	loc dirfiles : dir `"`subdirnm'"' dir "*", respectcase
+
+	// If there are subdirectories
+	if `: word count `dirfiles'' > 0 {
+	
+		// Loop over subdirectories
+		forv d = 1/`: word count `dirfiles'' {
 		
+			// Call the subroutine recursively
+			chksubdir `subdirnm'/`: word `d' of `dirfiles''
+			
+		} // Loop over the subdirectories
+		
+	} // End IF Block for subdirectory recursion
+		
+	// Check for filenames
+	loc filenames : dir `"`subdirnm'"' files "*", respectcase
+	
+	// Test if the subdirectory contains any files
+	if `: word count `filenames'' > 0 {
+	
 		// Loop over the files in the directory
-		forv i = 1/`: word count `dirfiles'' {
+		forv i = 1/`: word count `filenames'' {
+		
+			// Stores the individual file name to check/test
+			loc filenm `: word `i' of `filenames''
 		
 			// Print message to screen and get user input
-			di as res `"Delete the file `: word `i' of `dirfiles'' from `path' ? (Y/n)"' _request(_del)
+			di as res `"Delete the file `filenm' from `subdirnm'? (Y/n)"' _request(_del)
 			
 			// If user enters nothing, y, or Y delete the file
 			if inlist(`"`del'"', "y", "Y", "") {
 			
 				// Erase the file from the disk
-				erase `"`path'/`: word `i' of `dirfiles''"'
+				erase `"`subdirnm'/`filenm'"'
 				
 				// Success message to console
-				di as res `"Erased the file : `path'/`: word `i' of `dirfiles''"'
+				di as res `"Erased the file : `subdirnm'/`filenm'"'
 				
 			} // End IF Block for user selected file deletion
 			
 		} // End Loop over files in directory
 		
-		// Check for files in directory again
-		loc dirfiles : dir `"`path'"' files "*", respectcase
-		
-		// Check for files in directory again
-		loc subdirs : dir `"`path'"' dirs "*", respectcase
-		
-		// If the directory is empty 
-		if `"`dirfiles'`subdirs'"' == "" {
-		
-			// Ask user if they want to delete the directory
-			di as res `"`path' is empty.  Delete the directory too? (Y/n)"'  ///   
-			_request(_del)
-		
-			// If y, Y, or null delete the directory
-			if inlist(`"`del'"', "y", "Y") {
-			
-				// Remove the directory
-				qui: rmdir `"`path'"'
-				
-			} // End IF Block for directory removal
-			
-		} // End IF Block for directory removal
-		
-	} // End ELSE Block for existing directory with rebuild option
-		
-	// If directory exists but user does not want to rebuild	
-	else if _rc == 602 & "`rebuild'" == "" {
+	} // End IF BLOCK for subdirectories with files
 	
-		// Print message to console
-		di as res "Directory exists and rebuild option not specified.  No further action"
-	
-	} // End ELSEIF Block for continuance action
-	
-	// Work around for stupid Windoze bug
-	else if _rc == 603 & `"`c(os)'"' == "Windows" {
-	} // End ELSE IF Block for stupid Windows bug
-	
-	// Some other error with the file path	
-	else {
-	
-		// Error out with the returned error code
-		err _rc
-		 
-	} // End ELSE Block for other error code handling
-		
-// End of program definition		
-end 
+	// Check for any subdirectories
+	loc dirfiles : dir `"`subdirnm'"' dir "*", respectcase
 
+	// Check for filenames
+	loc filenames : dir `"`subdirnm'"' files "*", respectcase
+	
+	// If the directory is empty 
+	if `"`dirfiles'`filenames'"' == "" {
+
+		// Ask user if they want to delete the directory
+		di as res `"`subdirnm' is empty.  Delete the directory too? (Y/n)"'  ///   
+		_request(_del)
+
+		// If y, Y, or null delete the directory
+		if inlist(`"`del'"', "y", "Y") qui: rmdir `"`subdirnm'"'
+			
+	} // End IF Block for directory removal
+
+// End of subroutine	
+end
+
+
+	
+	
