@@ -28,7 +28,7 @@ prog def edaheat, rclass
 	syntax varlist(min=2) [if] [in], root(string asis) [ keepgph ]
 	
 	// Mark observations to use
-	marksample touse
+	marksample touse, strok novarlist
 	
 	// Add section header to LaTeX file
 	file write doc "\section{Correlations} \newpage\clearpage" _n

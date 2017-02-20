@@ -29,7 +29,7 @@ prog def edamosaic
 			[ scheme(passthru) keepgph PERCent MISSing byvars(varlist) byseq ]
 			
 	// Mark only the observations to use
-	marksample touse
+	marksample touse, strok novarlist
 	
 	// If no by vars are passed to the command
 	if `"`byvars'"' == "" {

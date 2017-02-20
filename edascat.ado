@@ -37,7 +37,7 @@ prog def edascat
 										byvars(varlist) byseq ]
 										
 	// Mark only the observations to use
-	marksample touse
+	marksample touse, strok novarlist
 	
 	// If byvars weren't passed
 	if `"`byvars'"' == "" {

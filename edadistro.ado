@@ -31,7 +31,7 @@ prog def edadistro
 										keepgph	noUNIvariate]
 	
 	// Mark only the observations to use
-	marksample touse
+	marksample touse, strok novarlist
 
 	// Check implementation for univariate vs bivariate graphs
 	if "`univariate'" != "nounivariate" {

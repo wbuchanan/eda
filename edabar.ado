@@ -31,7 +31,7 @@ prog def edabar
 										keepgph	MISSing byvars(varlist) byseq ]
 										
 	// Mark only the observations to use
-	marksample touse
+	marksample touse, strok novarlist
 
 	// If the byvars parameter has no arguments
 	if "`byvars'" == "" {
