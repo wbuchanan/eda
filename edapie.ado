@@ -30,7 +30,7 @@ prog def edapie
 										keepgph	MISSing byvars(varlist) byseq ]
 										
 	// Mark only the observations to use
-	marksample touse
+	marksample touse, strok novarlist
 	
 	// No byvars argument
 	if `"`byvars'"' == "" {

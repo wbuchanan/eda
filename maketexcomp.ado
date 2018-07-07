@@ -6,13 +6,13 @@
 *     Bash/Batch script calling pdflatex on a given LaTeX source code file     *
 *                                                                              *
 * Lines -                                                                      *
-*     110                                                                      *
+*     125                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! maketexcomp
-*! v 0.0.0
-*! 29OCT2015
+*! v 0.0.2
+*! 07JUL2018
 
 // Drop program from memory if it is already loaded
 cap prog drop maketexcomp
@@ -27,84 +27,99 @@ prog def maketexcomp, rclass
 	syntax anything(name=filenm id="Name of LaTeX Source Code File"),		 ///   
 	SCRiptname(string) root(string) [ PDFlatex(string asis) ]
 	
-	// Check for null PDFLaTeX argument
-	if `"`pdflatex'"' == "" {
+	// If path to pdfLaTeX not specified use *nix binary reference
+	if `"`pdflatex'"' == "" loc pdflatex pdflatex
 	
-		// If null use the binary name
-		loc pdflatex pdflatex
-		
-	} // End IF Block for null pdflatex binary reference
-		
-	// Check if user is running on Windoze
+	// Clean the filename macro to remove any quotation marks from the path
+	loc filenm `: subinstr loc filenm `"""' "", all'
+	
+	// Check if user is running on Windows
 	if `"`c(os)'"' == "Windows" {
 	
-		loc compile `scriptname'.bat
-	
-		// Write a Windoze batch script to compile a given LaTeX document
-		file open comp using `"`scriptname'.bat"', w replace
-		file write comp "::Batch file to compile LaTeX source" _n
-		file write comp `"`pdflatex'.exe `filenm'.tex"' _n
-		file write comp `"`pdflatex'.exe `filenm'.tex"' _n
-		file write comp `"`pdflatex'.exe `filenm'.tex"' _n
-
-		// Loop over ancillary file extensions
-		foreach v in aux lof log lot out toc {
-
-			// Delete ancillary files
-			file write comp `"DEL "`filenm'.`v'""' _n
-
-		} // End Loop over ancillary file extensions
+		// Creates file extension for Windows terminal executables
+		loc extension .bat
 		
-		file write comp "" _n
-		file write comp "" _n
-		file close comp
-			
-	} // End IF Block for Windoze-based systems
+		// Adds a comment header for Windows batch files
+		loc header "::Batch file to compile LaTeX source"
+		
+		// Contructs the reference to the pdf LaTeX binary
+		loc bin `pdflatex'.exe
+		
+		// Contructs the reference to the terminal command to delete/remove files
+		loc remove DEL
+		
+		// Only used for parallel construction across OS
+		loc scriptexec 
+		
+	} // End of IF Block for Windows systems
 	
-	// For all other computer systems on the planet
+	// For *nix based systems
 	else {
 	
-		loc compile `scriptname'.sh
-
-		// Write a bash script to compile the LaTeX document 
-		file open comp using `"`scriptname'.sh"', w replace
-		file write comp "#!/bin/bash" _n
-		file write comp `"cd "`root'""' _n
-		file write comp `"`pdflatex' `filenm'.tex"' _n
-		file write comp `"`pdflatex' `filenm'.tex"' _n
-		file write comp `"`pdflatex' `filenm'.tex"' _n
-
-		// Loop over ancillary file extensions
-		foreach v in aux lof log lot out toc {
-
-			// Delete ancillary files
-			file write comp `"sudo rm "`filenm'.`v'""' _n
-
-		} // End Loop over ancillary file extensions
+		// Create extension reference for a shell script
+		loc extension .sh
 		
-		file write comp "" _n
-		file close comp
-
-		// Make the bash script executable
-		! sudo chmod a+x "`scriptname'.sh"
-
-	} // End of ELSE Block for non Windoze based systems
-	
-	// Check for OSX
-	if `"`c(os)'"' == "MacOSX" {
-	
-		// Return a version of the shell out for OSX
-		ret loc comp ! open -a Terminal.app `scriptname'.sh
+		// Add the header for the Bourne Again SHell
+		loc header "#!/bin/bash"
 		
-	} // End IF Block for OSX	
+		// Add reference to the binary for pdf LaTeX
+		loc bin `pdflatex'
+		
+		// Add reference for the terminal command to delete/remove files
+		loc remove "rm"
+		
+		// Constructs shell command to make the script executable
+		loc scriptexec ! chmod +x "`scriptname'.`extension'"
+		
+	} // End of ELSE Block for *nix based systems
+	
+	// Opens a file connection to construct the compilation script
+	file open comp using `"`scriptname'.`extension'"', w replace
+	
+	// Writes the appropriate OS header for a terminal script
+	file write comp "`header'" _n
+	
+	// Calls pdfLaTeX to do the first pass
+	file write comp `"`bin' "`filenm'.tex""' _n
+	
+	// Calls pdfLaTeX to do the second pass; this should finalize hyperrefs to 
+	// individual graphs and TOC references as well as doing the initial insert
+	// and build of the TOC
+	file write comp `"`bin' "`filenm'.tex""' _n
+	
+	// Calls pdfLaTeX to do the last pass; this should finalize the TOC/TOF and
+	// any other references like that
+	file write comp `"`bin' "`filenm'.tex""' _n
 
+	// Loop over ancillary file extensions
+	foreach v in aux lof log lot out toc {
+
+		// If Windows these file name references need to have a Windows path
+		// delimiter
+		if `"`c(os)'"' == "Windows" loc filenm `: subinstr loc filenm "/" "\", all'
+	
+		// Delete ancillary files
+		file write comp `"`remove' "`filenm'.`v'""' _n
+
+	} // End Loop over ancillary file extensions
+		
+	// Adds empty line	
+	file write comp "" _n
+		
+	// Adds empty line	
+	file write comp "" _n
+		
+	// Closes the open file connection
+	file close comp
+	
+	// Need to make the file executable on *nix systems
+	`scriptexec'
+
+	// Return shell command to execute compilation script on OSX
+	if `"`c(os)'"' == "MacOSX" ret loc comp ! open -a Terminal.app `scriptname'.sh
+		
 	// For other OS
-	else {
-	
-		// Return the name of the script to execute
-		ret loc comp ! `compile'
-		
-	} // End ELSE Block for other OS
+	else ret loc comp ! `compile'
 		
 // End of subroutine definition	
 end

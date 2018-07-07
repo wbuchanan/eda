@@ -12,8 +12,8 @@
 ********************************************************************************
 		
 *! edaheat
-*! v 0.0.0
-*! 28OCT2015
+*! v 0.0.2
+*! 07JUL2018
 
 // Drop program from memory if already loaded
 cap prog drop edaheat
@@ -28,7 +28,7 @@ prog def edaheat, rclass
 	syntax varlist(min=2) [if] [in], root(string asis) [ keepgph ]
 	
 	// Mark observations to use
-	marksample touse
+	marksample touse, strok novarlist
 	
 	// Add section header to LaTeX file
 	file write doc "\section{Correlations} \newpage\clearpage" _n
@@ -68,7 +68,7 @@ prog def edaheat, rclass
 		} // Emd Loop to get variable labels
 		
 		// Get pairwise correlation coefficient estimates
-		pwcorr `varlist'
+		qui: pwcorr `varlist'
 		
 		// Store the correlation matrix
 		mat edaheatmat = r(C)
@@ -92,7 +92,7 @@ prog def edaheat, rclass
 		loc maxn = `c(N)'
 		
 		// Normalize the data
-		reshape long edaheatmat, i(xvar) j(yvar)
+		qui: reshape long edaheatmat, i(xvar) j(yvar)
 		
 		// Loop over ids to assign variable labels
 		forv i = 1/`maxn' {

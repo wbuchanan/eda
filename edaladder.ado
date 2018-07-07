@@ -31,7 +31,7 @@ prog def edaladder
 										keepgph	]
 										
 	// Mark only the observations to use
-	marksample touse
+	marksample touse, strok novarlist
 
 	// Add subheading to the LaTeX file
 	file write doc "\subsubsection{Ladder of Powers Transformation Graphs} \newpage\clearpage" _n
