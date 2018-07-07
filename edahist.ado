@@ -11,8 +11,8 @@
 ********************************************************************************
 		
 *! edahist
-*! v 0.0.1
-*! 10NOV2015
+*! v 0.0.2
+*! 07JUL2018
 
 // Drop program from memory if already loaded
 cap prog drop edahist
@@ -34,7 +34,7 @@ prog def edahist
 										keepgph	byvars(varlist) byseq]
 										
 	// Mark only the observations to use
-	marksample touse
+	marksample touse, strok novarlist
 	
 	// No byvars passed to command
 	if `"`byvars'"' == "" {
