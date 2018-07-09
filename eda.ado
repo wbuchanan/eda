@@ -12,7 +12,7 @@
 ********************************************************************************
 		
 *! eda
-*! v 0.0.3
+*! v 0.0.4
 *! 09jul2018
 
 // If you don't have the tuples program installed you may want to do that
@@ -90,7 +90,7 @@ prog def eda
 				di as err "The program will stop running now."
 				
 				// Exit the program
-				end
+				exit
 				
 			} // End ELSE Block for not installing the dependencies
 		
