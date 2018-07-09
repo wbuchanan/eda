@@ -10,16 +10,15 @@ d KW: Color
 d
 d Requires: Stata version 14
 d
-d Distribution-Date: 20170220
+d Distribution-Date: 20180709
 d
 d Author: Billy Buchanan 
 d	  Director, 
-d	  Office of Data, Research, and Accountability
+d	  Grants, Research, Accountability, & Data
 d	  Fayette County Public Schools
 d Support: email Billy [dot] Buchanan @t fayette [dot] kyschools [dot] us
 d
 f catorcont.ado
-f dirfile.ado
 f eda.ado
 f edabar.ado
 f edabox.ado

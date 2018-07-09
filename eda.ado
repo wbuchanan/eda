@@ -7,13 +7,13 @@
 *	  the LaTeX source document.											   *
 *                                                                              *
 * Lines -                                                                      *
-*     871                                                                      *
+*     880                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! eda
-*! v 0.0.2
-*! 07jul2018
+*! v 0.0.3
+*! 09jul2018
 
 // If you don't have the tuples program installed you may want to do that
 // ssc inst tuples, replace
@@ -43,7 +43,7 @@ prog def eda
 	BYSeq WEIGHTtype(passthru) ]
 	
 	// List of dependencies needed for the program to execute
-	loc deps tuples spineplot estout 
+	loc deps tuples spineplot estout brewscheme
 	
 	// Loop over dependencies
 	foreach d of loc deps {
@@ -58,7 +58,7 @@ prog def eda
 			di as err "You do not have the dependency `d' installed on your machine."  
 			
 			// Ask user if they would like to install the package
-			di "Would you like to install it from the SSC now? (Y/N)" _request(depcheck)
+			di "Would you like to install it now? (Y/N)" _request(depcheck)
 
 			// Loop until a valid response is received
 			while !inlist(`"$depcheck"', "y", "Y", "n", "N") {
@@ -67,12 +67,20 @@ prog def eda
 				di "I'm sorry, I do not understand what you would like me to do."
 				
 				// As if they would like to install the program again
-				di "Would you like to install `d' from the SSC now? (Y/N)" _request(depcheck)
+				di "Would you like to install `d' now? (Y/N)" _request(depcheck)
 				
 			} // End WHILE Loop for invalid responses
 			
 			// If they would like to install the dependency
-			if inlist(`"$depcheck"', "y", "Y") ssc inst `d', replace
+			if inlist(`"$depcheck"', "y", "Y") {
+			
+				// For other dependencies install from SSC
+				if `"`d'"' != "brewscheme" ssc inst `d', replace
+				
+				// For brewscheme install from repository
+				else net inst brewscheme, from("http://wbuchanan.github.io/brewscheme")
+				
+			} // End IF Block for installation
 			
 			// If they do not want to install the dependency
 			else {
