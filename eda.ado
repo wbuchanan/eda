@@ -7,13 +7,13 @@
 *	  the LaTeX source document.											   *
 *                                                                              *
 * Lines -                                                                      *
-*     755                                                                      *
+*     871                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! eda
-*! v 0.0.0
-*! 30OCT2015
+*! v 0.0.2
+*! 07jul2018
 
 // If you don't have the tuples program installed you may want to do that
 // ssc inst tuples, replace
@@ -41,61 +41,91 @@ prog def eda
 	FPFITCi2(string asis) noBUBBLEplots noBOXplots noMOSAIC noHEATmap 		 ///   
 	COMPile PDFLatex(passthru) BYGraphs(string asis) BYVars(passthru) 		 ///   
 	BYSeq WEIGHTtype(passthru) ]
-
-	// Make the sample to use for the program
-	marksample edause, strok novarlist
 	
-	// Check percentage option
-	if "`percent'" == "" {
-
-		// If percentage is not specified set it to frequency
-		loc bartype count
+	// List of dependencies needed for the program to execute
+	loc deps tuples spineplot estout 
+	
+	// Loop over dependencies
+	foreach d of loc deps {
+	
+		// Test if the user has tuples installed
+		cap which `d'
 		
-	} // End IF Block for percent/count switch
-
-	// If turned on
-	else {
-
-		// Set the bartype macro
-		loc bartype percent
-
-	} // End ELSE Block for percent option
-
-	// Check author name field	
-	if `"`authorname'"' == "" {
-
-		// If null pull the username from the system
-		loc authorname `c(username)'
+		// If the user does not have tuples
+		if _rc != 0 {
 		
-	} // End IF Block for author name
-	
-	// Check for report name
-	if `"`reportname'"' == "" {
-	
-		// Get file name
-		loc reportname $S_FN
-		
-	} // End IF Block for null report name
-	
-	// Check slow option
-	if "`slow'" != "" {
-	
-		// Set local macro with sleep command
-		loc slow sleep 5000
-		
-	} // End IF Block for slow option
+			// Print error message to screen
+			di as err "You do not have the dependency `d' installed on your machine."  
+			
+			// Ask user if they would like to install the package
+			di "Would you like to install it from the SSC now? (Y/N)" _request(depcheck)
 
+			// Loop until a valid response is received
+			while !inlist(`"$depcheck"', "y", "Y", "n", "N") {
+			
+				// Print updated error message
+				di "I'm sorry, I do not understand what you would like me to do."
+				
+				// As if they would like to install the program again
+				di "Would you like to install `d' from the SSC now? (Y/N)" _request(depcheck)
+				
+			} // End WHILE Loop for invalid responses
+			
+			// If they would like to install the dependency
+			if inlist(`"$depcheck"', "y", "Y") ssc inst `d', replace
+			
+			// If they do not want to install the dependency
+			else {
+				
+				// Print error message to screen
+				di as err "This program cannot execute without its dependencies."
+				di as err "The program will stop running now."
+				
+				// Exit the program
+				end
+				
+			} // End ELSE Block for not installing the dependencies
+		
+		} // End IF Block for dependency checks
+
+	} // End Loop over dependencies	
+	
+	// Remove depcheck global
+	glo depcheck ""
+		
 	// Preserve the current state of the data in memory
 	preserve
 
-		// If user specifies data not currently in memory
-		if `"`using'"' != "" {
+		// If using specified load those data
+		if `"`using'"' != "" qui: use `varlist' `"`using'"', clear
 
-			// Load data if file is specified
-			qui: use `varlist' `"`using'"', clear
-
-		} // End IF Block for using file
+		// Make the sample to use for the program
+		marksample edause, strok novarlist
+		
+		// If percentage is not specified set it to frequency
+		if "`percent'" == ""  loc bartype count
 			
+		// If turned on set the bartype macro to percent
+		else loc bartype percent
+
+		// If no author name use the system's username
+		if `"`authorname'"' == "" loc authorname `c(username)'
+			
+		// If no report name set the report name parameter to the file name
+		if `"`reportname'"' == ""  loc reportname $S_FN
+			
+		// Replace Windows style path delimiters in root with *nix path delimiters
+		loc root `: subinstr loc root "\" "/", all'
+		
+		// Replace any windows path delimiters with *nix style path delimiters
+		loc reportname `: subinstr loc reportname "\" "/", all'
+				
+		// If slow option is enabled, reassign the macro with the sleep command
+		if "`slow'" != "" loc slow sleep 5000
+		
+		// Test whether the root directory exists
+		
+	
 		// Build root directory
 		dirfile `root', p("graphs") rebuild
 
@@ -174,14 +204,9 @@ prog def eda
 		// Remove any id variables from the variable list
 		loc numvars : list numvars - idvars
 
-		// Check for varlist argument
-		if `"`varlist'"' != "" {
-
-			// Only include variables in varlist
-			loc numvars : list numvars & varlist
+		// Select only variables that are in the variable list and numeric
+		if `"`varlist'"' != "" loc numvars : list numvars & varlist
 			
-		} // End IF Block for varlist argument
-
 		// Allocates namespace for tempfile name
 		tempfile edatemp
 		
@@ -215,7 +240,9 @@ prog def eda
 		file write doc "\usepackage{pdflscape}" _n
 		file write doc `"\usepackage{tocloft}"' _n
 		file write doc `"\usepackage{titlesec}"' _n
-		file write doc `"\usepackage{fixltx2e}"' _n
+
+		// Deprecating the use of the fixltx2e package
+		// file write doc `"\usepackage{fixltx2e}"' _n
 		file write doc "\usepackage[letterpaper,margin=0.25in]{geometry}" _n
 		file write doc "\usepackage{graphicx}" _n
 		file write doc "\usepackage[hidelinks]{hyperref}" _n
@@ -578,7 +605,7 @@ prog def eda
 				qui: estpost ta `v' if `edause', mi notot
 				
 				// Export table to LaTeX file
-				esttab . using `"`root'/tables/tab`v'.tex"', uns noobs 		 ///   
+				qui: esttab . using `"`root'/tables/tab`v'.tex"', uns noobs  ///   
 				longtable varlabels(`e(labels)') eql("`v'") ml(, none) 		 ///   
 				nonum cells("b pct(fmt(a3))") replace						 ///   
 				coll("Frequency" "Percentage") ti(`"Distribution of `: var l `v''"')
@@ -636,28 +663,28 @@ prog def eda
 				} // End IF Block for wide tables
 
 				// Export frequency cross tab to file
-				esttab . using `"`root'/tables/tab`one'`two'.tex"', replace  ///   
+				qui: esttab . using `"`root'/tables/tab`one'`two'.tex"', 	 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("b") coll("Frequency") noobs uns longtable 			 ///   
-				ti(`"Frequency of `: var l `one'' by `: var l `two''"')
+				ti(`"Frequency of `: var l `one'' by `: var l `two''"') replace
 
 				// Export Joint Percentages
-				esttab . using `"`root'/tables/tab`one'`two'.tex"', append   ///   
+				qui: esttab . using `"`root'/tables/tab`one'`two'.tex"',  	 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("pct(fmt(a3))") coll("Overall\%") noobs uns longtable  ///   
-				ti(`"Overall \% of `: var l `one'' by `: var l `two''"')
+				ti(`"Overall \% of `: var l `one'' by `: var l `two''"') append
 
 				// Export Column-Wise marginal percentages to file
-				esttab . using `"`root'/tables/tab`one'`two'.tex"', append   ///   
+				qui: esttab . using `"`root'/tables/tab`one'`two'.tex"',  	 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("colpct(fmt(a3))") coll("Column\%") noobs uns longtable ///   
-				ti(`"Column \% of `: var l `one'' by `: var l `two''"')
+				ti(`"Column \% of `: var l `one'' by `: var l `two''"') append
 
 				// Export Row-Wise marginal percentages to file
-				esttab . using `"`root'/tables/tab`one'`two'.tex"', append   ///   
+				qui: esttab . using `"`root'/tables/tab`one'`two'.tex"', 	 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("rowpct(fmt(a3))") coll("Row\%") noobs uns longtable 	 ///   
-				ti(`"Row \% of `: var l `one'' by `: var l `two''"')
+				ti(`"Row \% of `: var l `one'' by `: var l `two''"') append
 
 				// Add the table to the LaTeX document
 				file write doc "\begin{table}" _n
@@ -694,31 +721,31 @@ prog def eda
 			qui: estpost su `continuous' if `edause', de  quietly
 
 			// Create LaTeX table of parametric descriptive stats
-			esttab . using `"`root'/tables/descriptives.tex"', nonum nodep   ///   
+			qui: esttab . using `"`root'/tables/descriptives.tex"', nonum    ///   
 			nomti noobs ti("Descriptive Statistics of Continuous Variables") ///   
 			cells("count mean(fmt(3)) sd(fmt(3))") label replace longtable 	 ///   
 			varlabels(`e(labels)') collab("N" "$\mu$" "$\sigma$")			 ///   
-			addn("$\mu$ = Average $\sigma$ = Standard Deviation")
+			addn("$\mu$ = Average $\sigma$ = Standard Deviation") nodep
 
 			// Create summary statistics table for continuous variables
 			qui: estpost su `continuous' if `edause', de  quietly
 
 			// Create table of higher order moment conditions
-			esttab . using `"`root'/tables/higherorder.tex"', nodep nomti    ///   
+			qui: esttab . using `"`root'/tables/higherorder.tex"', nomti   	 ///   
 			label cells("skewness(fmt(3)) kurtosis(fmt(3))") replace nonum 	 ///   
 			collab("Skewness" "Kurtosis") longtable varlabels(`e(labels)')	 ///   
-			ti("Higher Order Moment Conditions") noobs
+			ti("Higher Order Moment Conditions") noobs nodep
 			
 			// Create summary statistics table for continuous variables
 			qui: estpost su `continuous' if `edause', de  quietly
 
 			// Create LaTeX table of non-parametric stats
-			esttab . using `"`root'/tables/orderstats.tex"', nodep nomti  	 ///   
+			qui: esttab . using `"`root'/tables/orderstats.tex"', nomti  	 ///   
 			label ti("Order Statistics") nonum  varlabels(`e(labels)') 		 ///   
 			longtable collab("Min." "25\%ile" "Median" "75\%ile" "Max")		 ///   
 			cells("min(fmt(3)) p25(fmt(3)) p50(fmt(3)) p75(fmt(3)) max(fmt(3))") ///
 			addn("This is also known as Tukey's Five Number Summary") 		 ///   
-			noobs replace
+			noobs replace nodep
 			
 			// Create correlation matrix
 			// estpost correlate `continuous', matrix
@@ -773,8 +800,8 @@ prog def eda
 				s(mean) c(s) 
 
 				// Create the output table
-				esttab . using `"`root'/tables/condmean`cat'.tex"', label 	 ///   
-				nomti nonum main(mean) nostar uns longtable replace			 ///   
+				qui: esttab . using `"`root'/tables/condmean`cat'.tex"',  	 ///   
+				nomti nonum main(mean) nostar uns longtable replace	label	 ///   
 				coll(`e(labels)') addn(" ") noobs							 ///   
 				ti("Averages by groups of `: var l `cat''")
 				
@@ -787,8 +814,8 @@ prog def eda
 				qui: estpost tabstat `continuous', by(`cat') s(sd) c(s) 
 
 				// Create the output table
-				esttab . using `"`root'/tables/condsd`cat'.tex"', label 	 ///   
-				nomti nonum main(sd) nostar uns longtable replace			 ///   
+				qui: esttab . using `"`root'/tables/condsd`cat'.tex"', 		 ///   
+				nomti nonum main(sd) nostar uns longtable replace label		 ///   
 				coll(`e(labels)')  addn(" ") noobs							 ///   
 				ti("Standard Deviations by groups of `: var l `cat''")
 
@@ -827,7 +854,7 @@ prog def eda
 		if "`compile'" != "" {
 
 			// Create bash/batch script to compile source
-			maketexcomp "`root'/`output'", scr(`"`root'/makeLaTeX"')	 ///   
+			maketexcomp "`root'/`output'", scr(`"`root'/makeLaTeX"')		 ///   
 			`pdflatex' root(`root')
 			
 			// Local with code to execute compiler script
