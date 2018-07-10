@@ -11,8 +11,8 @@
 ********************************************************************************
 		
 *! maketexcomp
-*! v 0.0.2
-*! 07JUL2018
+*! v 0.0.3
+*! 09JUL2018
 
 // Drop program from memory if it is already loaded
 cap prog drop maketexcomp
@@ -116,10 +116,10 @@ prog def maketexcomp, rclass
 	`scriptexec'
 
 	// Return shell command to execute compilation script on OSX
-	if `"`c(os)'"' == "MacOSX" ret loc comp ! open -a Terminal.app `scriptname'.sh
+	if `"`c(os)'"' == "MacOSX" ret loc comp ! open -a Terminal.app `scriptname'`extension'
 		
 	// For other OS
-	else ret loc comp ! `compile'
+	else ret loc comp ! `scriptname'`extension'
 		
 // End of subroutine definition	
 end
