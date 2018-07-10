@@ -74,7 +74,7 @@ prog def maketexcomp, rclass
 	} // End of ELSE Block for *nix based systems
 	
 	// Opens a file connection to construct the compilation script
-	file open comp using `"`scriptname'.`extension'"', w replace
+	file open comp using `"`scriptname'`extension'"', w replace
 	
 	// Writes the appropriate OS header for a terminal script
 	file write comp "`header'" _n
