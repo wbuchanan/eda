@@ -13,7 +13,7 @@
 		
 *! edaheat
 *! v 0.0.2
-*! 07JUL2018
+*! 17jul2018
 
 // Drop program from memory if already loaded
 cap prog drop edaheat

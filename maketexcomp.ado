@@ -12,7 +12,7 @@
 		
 *! maketexcomp
 *! v 0.0.3
-*! 09JUL2018
+*! 17jul2018
 
 // Drop program from memory if it is already loaded
 cap prog drop maketexcomp

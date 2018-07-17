@@ -12,7 +12,7 @@
 		
 *! edabar
 *! v 0.0.1
-*! 10NOV2015
+*! 17jul2018
 
 // Drop program from memory if already loaded
 cap prog drop edabar

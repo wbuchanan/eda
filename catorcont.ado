@@ -13,8 +13,8 @@
 ********************************************************************************
 		
 *! catorcont
-*! v 0.0.0
-*! 29OCT2015
+*! v 0.0.1
+*! 17jul2018
 
 // Drop program from memory if already defined
 cap prog drop catorcont

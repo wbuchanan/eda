@@ -12,8 +12,8 @@
 ********************************************************************************
 		
 *! edaladder
-*! v 0.0.0
-*! 28OCT2015
+*! v 0.0.1
+*! 17jul2018
 
 // Drop program from memory if already loaded
 cap prog drop edaladder
@@ -46,7 +46,7 @@ prog def edaladder
 		// Export to pdf
 		qui: gr export `"`root'/graphs/gladder`v'.pdf"', as(pdf) replace
 	
-		// Create the gladder graph
+		// Create the qladder graph
 		qladder `v' if `touse', `scheme' `histogramopts'					 ///   
 		ti("Ladder of Powers Quantile Normal Plots for " `:char `v'[title]')
 	

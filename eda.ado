@@ -12,8 +12,8 @@
 ********************************************************************************
 		
 *! eda
-*! v 0.0.4
-*! 09jul2018
+*! v 0.0.5
+*! 17jul2018
 
 // If you don't have the tuples program installed you may want to do that
 // ssc inst tuples, replace

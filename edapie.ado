@@ -6,13 +6,13 @@
 *     Creates pie chart GPH and PDF as well as entries in the LaTeX document   *
 *                                                                              *
 * Lines -                                                                      *
-*     79                                                                       *
+*     98                                                                       *
 *                                                                              *
 ********************************************************************************
 		
 *! edapie
-*! v 0.0.0
-*! 27OCT2015
+*! v 0.0.1
+*! 17jul2018
 
 // Drop program from memory if already loaded
 cap prog drop edapie

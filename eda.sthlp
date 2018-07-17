@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 0.0.0 30OCT2015}{...}
+{* *! version 0.0.1 17jul2018}{...}
 {cmd:help eda}
 {hline}
 
@@ -32,6 +32,7 @@ tables used in Exploratory Data Analyses ({help eda##edarefs:Tukey (1977)}. {p_e
 {cmd:fpfitci}[({it:string})] {cmdab:nobox:plots} {cmd:nomosaic} 
 {cmdab:noheat:map} {cmdab:nobubble:plots} {cmdab:weight:type(}{it:int}{opt )}
 {cmdab:comp:ile} {cmdab:pdfl:atex(}{it:string}{opt )} 
+{cmdab:byg:raphs(}{it:string}{opt )} {cmdab:byv:ars(}{it:string}{opt )} {cmdab:bys:eq}
 ]
 
 {marker edadesc}{p 2 2 2}{title:{hi:Description}}{p_end}
@@ -68,7 +69,10 @@ use.  {help eda##edaexplain:Required Arguments} contains information about
 parameters that must always have a value for the program to run.  {help eda##edaopts:Optional Arguments} 
 is the start of the section of the help file listing all of the optional parameters.  
 {help eda##classify:Variable Classification} contains arguments related to the way 
-the program classifies variables as categorical/continuous. {help eda##edaglobals:Global Options} 
+the program classifies variables as categorical/continuous. 
+{help eda##edaconditioning:Options for Generating Conditional Graphs} describes 
+the options available to generate graphs conditioned on additional variables.
+{help eda##edaglobals:Global Options} 
 contains information about options that affect the resulting LaTeX document or the 
 production of graphs on a global scale (e.g., everything the program does).  
 {help eda##edacatdist:Univariate Graphs - Categorical Variables} contains information 
@@ -84,6 +88,9 @@ contains information used to control the production of mosaic - or {help eda##ed
 control options related to bubble plots and heatmaps.  {help eda##edatex:LaTeX Options} contains 
 information about the options used to automatically compile the LaTeX source code and/or 
 method to specify the path to the LaTeX binary when creating the compilation script. {p_end}
+
+{p 4 4 4}If you have questions, comments, and/or to report a bug, please use the 
+link provided in the {help eda##support:Help/Support} section below.{p_end}
 
 
 {marker edaexplain}{p 2 2 2}{title:{hi:Required Arguments}}{p_end}{break}
@@ -117,6 +124,16 @@ variables to be included in the program.  Without a variable list, this argument
 will use all string variables and with a variable list will only use the variables 
 supplied by the end user.{p_end}
 
+{p 8 8 8}{cmdab:auth:orname} is an optional argument used to pass an author 
+name to the LaTeX file Title Page.  If no value is specified the program will 
+use the value returned in the macro c(username).{p_end}
+
+{p 8 8 8}{cmdab:repo:rtname} is an optional argument used to pass a subtitle 
+to the LaTeX file Title page.  If no value is specified the program will use the 
+name of the file currently loaded in memory while the program is being executed. {p_end}
+
+
+
 {marker edaclassify}{dlgtab 8 8:Variable Classification}{break}
 {p 20 20 20}{help eda##edasyntax:Syntax} {space 15} {help eda##edadesc:Description} {space 15} {help eda##edaex:Examples} {p_end}{break}
 {p 14 14 14}These options allow the user to control how variables are classified 
@@ -149,24 +166,40 @@ parameter it will override the mincat and maxcat parameters.  {p_end}
 continuous by the program.  If an argument is passed to this and the catvars 
 parameter it will override the mincat and maxcat parameters. {p_end}
 
+{marker edaconditioning}{dlgtab 8 8:Options for Generating Conditional Graphs}{break}
+{p 20 20 20}{help eda##edasyntax:Syntax} {space 15} {help eda##edadesc:Description} {space 15} {help eda##edaex:Examples} {p_end}{break}
+{p 14 14 14}{cmdab:byg:raphs} is an optional argument that allows the user to 
+define which types of graphs to generate conditional on another set of variables 
+passed to the {cmdab:byv:ars} option.  The valid values that can be passed to 
+this option are: {hi: bar}, {hi: pie}, {hi: histogram}, {hi: scatterplot}, 
+{hi: bubble}, {hi: boxplot}, and {hi: mosaic}.  {p_end}
+
+{p 14 14 14}{cmdab:byv:ars} is an optional argument intended to be used in 
+conjunction with the {cmdab:byg:raphs} option.  The behavior of these variables 
+is defined by the option {cmdab:bys:eq}.  Users are recommended to pass only 
+categorical variables to this option as runtime can grow extremely slow if 
+continuous data are passed to the by options. {p_end}
+
+{p 14 14 14}{cmdab:bys:eq} is an optional argument that defines how the variables
+specified in the {cmdab:byv:ars} option are treated for each type of graph 
+specified in the {cmdab:byg:raphs} option.  Using this option will cause the 
+internal programs to iterate over the variables specified in {cmdab:byv:ars} and 
+generate one graph for each variable.  In other words, the variables specified 
+in the {cmdab:byv:ars} option will be used sequentially.  If this option is not
+specified, the entire varlist contained in the {cmdab:byv:ars} option is passed 
+to the {cmd:by} option of the appropriate graphs conditioning on all variables 
+simultaneously.{p_end}
+
 {marker edaglobals}{dlgtab 8 8:Global Options}{break}
 {p 20 20 20}{help eda##edasyntax:Syntax} {space 15} {help eda##edadesc:Description} {space 15} {help eda##edaex:Examples} {p_end}{break}
 {p 14 14 14}These options affect the performance and/or aesthetics of {hi:all} 
 graphs.  The program was designed specifically to leverage the power/flexibility 
-provided by {stata `"net desc brewscheme, from("http://www.paces-consulting.org/stata")"': brewscheme}.  
-{search brewscheme} provides a flexible interface to help users define customized 
+provided by {stata `"net desc brewscheme, from("http://wbuchanan.github.io/brewscheme")"': brewscheme}.  
+{browse `"http://wbuchanan.github.io/brewscheme/about"':brewscheme} provides a flexible interface to help users define customized 
 scheme files with a series of aesthetic adjustments from the default Stata 
 graphics/schemes.  Although not using a scheme will still result in consistent 
 graph aesthetics (due to the use of default schemes), this is the easiest possible 
 way to control the aesthetics of the graphs created by this program. {p_end}{break}
-
-{p 14 14 14}{cmdab:auth:orname} is an optional argument used to pass an author 
-name to the LaTeX file Title Page.  If no value is specified the program will 
-use the value returned in the macro c(username).{p_end}
-
-{p 14 14 14}{cmdab:repo:rtname} is an optional argument used to pass a subtitle 
-to the LaTeX file Title page.  If no value is specified the program will use the 
-name of the file currently loaded in memory while the program is being executed. {p_end}
 
 {p 14 14 14}{cmd:scheme} is an option used to pass a scheme argument to all of 
 the underlying graph commands.  I strongly recommend using {search brewscheme} 
@@ -403,6 +436,10 @@ pass the name of the scheme to the scheme parameter: {p_end}
 
 {marker contact}{p 2 2 2}{title:{hi:Author}}{p_end}
 {p 4 4 4}Billy Buchanan {p_end}
-{p 4 4 4}Data Scientist{p_end}
-{p 4 4 4}{browse "http://mpls.k12.mn.us":Minneapolis Public Schools}{p_end}
+{p 4 4 4}Director of Grants, Research, Accountability, & Data{p_end}
+{p 4 4 4}{browse "http://www.fcps.net":Fayette County Public Schools}{p_end}
+
+{marker support}{p 2 2 2}{title:{hi:Help/Support}}{p_end}
+{p 4 4 4}For questions, bugs, and/or comments, please visit the project's repository:{p_end}
+{p 4 4 4}{browse "https://github.com/wbuchanan/eda"}{p_end}
 

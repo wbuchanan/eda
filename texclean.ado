@@ -9,13 +9,13 @@
 *     r(clntex) - A LaTeX sanitized string									   *
 *                                                                              *
 * Lines -                                                                      *
-*     103                                                                      *
+*     101                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! texclean
-*! v 0.0.0
-*! 27OCT2015
+*! v 0.0.1
+*! 17jul2018
 
 // Drop program from memory if previously loaded
 cap prog drop texclean

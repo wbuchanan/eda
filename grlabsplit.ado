@@ -8,13 +8,13 @@
 *	  char varname[title] - A string that can be used for titles in graphs	   *
 *                                                                              *
 * Lines -                                                                      *
-*     80                                                                       *
+*     78                                                                       *
 *                                                                              *
 ********************************************************************************
 		
 *! grlabsplit
-*! v 0.0.0
-*! 20OCT2015
+*! v 0.0.1
+*! 17jul2018
 
 // Drop program from memory if loaded
 cap prog drop grlabsplit
