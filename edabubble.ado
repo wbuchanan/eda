@@ -12,8 +12,8 @@
 ********************************************************************************
 		
 *! edabubble
-*! v 0.0.1
-*! 10NOV2015
+*! v 0.0.2
+*! 01may2019
 
 // Drop program from memory if already loaded
 cap prog drop edabubble
@@ -151,7 +151,7 @@ prog def edabubble
 		file write doc "\subsection{Bubble Plots}" _n
 
 		// Generate list of all pairwise combination of continuous variables
-		tuples `varlist', asis min(3) max(3)		
+		tuples `varlist', asis min(3) max(3) cvp
 				
 		// Generate scatter plots for all pairwise combinations of continuous variables
 		forv i = 1/`ntuples' {
@@ -184,14 +184,14 @@ prog def edabubble
 			// Drop the clone variable
 			drop `z'clone
 			
-			// Export the scatterplot as a .png file
-			qui: gr export `"`root'/graphs/bubble`i'.pdf"', as(pdf) replace
+			// Export the scatterplot as a .pdf file
+			qui: gr export `"`root'/graphs/bubble-`y'-`x'.pdf"', as(pdf) replace
 			
 			// Check if user wants to keep the GPH files
 			if "`keepgph'" != "" {
 			
 				// Define local macro with syntax to remove file
-				qui: gr save `"`root'/graphs/bubble`i'.gph"', replace
+				qui: gr save `"`root'/graphs/bubble-`y'-`x'.gph"', replace
 				
 			} // End IF Block to remove .gph files
 
@@ -216,7 +216,7 @@ prog def edabubble
 			// Add the scatterplot to the LaTeX document
 			file write doc "\begin{figure}[h!]" _n
 			file write doc `"\caption{Bubble Plot of `yref', `xref', and `zref' \label{fig:bubble`i'}}"' _n
-			file write doc `"\includegraphics[width=\textwidth]{bubble`i'.pdf}"' _n
+			file write doc `"\includegraphics[width=\textwidth]{bubble-`y'-`x'.pdf}"' _n
 			file write doc "\end{figure} \newpage\clearpage" _n
 			
 		} // End Loop over bubble plot permutations
@@ -227,7 +227,7 @@ prog def edabubble
 	else if `"`byvars'"' != "" & "`byseq'" != "" {
 	
 		// Generate list of all pairwise combination of continuous variables
-		tuples `varlist', asis min(3) max(3)		
+		tuples `varlist', asis min(3) max(3) cvp
 
 		// Add section header to LaTeX file
 		file write doc "\subsection{Lattice Bubble Plots}" _n
@@ -286,13 +286,13 @@ prog def edabubble
 				if _rc == 0 {
 				
 					// Export the scatterplot as a .png file
-					qui: gr export `"`root'/graphs/bubble`i'By`bref'.pdf"', as(pdf) replace
+					qui: gr export `"`root'/graphs/bubble-`y'-`x'-By`bref'.pdf"', as(pdf) replace
 					
 					// Check if user wants to keep the GPH files
 					if "`keepgph'" != "" {
 					
 						// Define local macro with syntax to remove file
-						qui: gr save `"`root'/graphs/bubble`i'By`bref'.gph"', replace
+						qui: gr save `"`root'/graphs/bubble-`y'-`x'-By`bref'.gph"', replace
 						
 					} // End IF Block to remove .gph files
 
@@ -317,7 +317,7 @@ prog def edabubble
 					// Add the scatterplot to the LaTeX document
 					file write doc "\begin{figure}[h!]" _n
 					file write doc `"\caption{Bubble Plot of `yref', `xref', and `zref' by `subsectionti' \label{fig:`bref'bubble`i'}}"' _n
-					file write doc `"\includegraphics[width=\textwidth]{bubble`i'By`bref'.pdf}"' _n
+					file write doc `"\includegraphics[width=\textwidth]{bubble-`y'-`x'-By`bref'.pdf}"' _n
 					file write doc "\end{figure} \newpage\clearpage" _n
 
 				} // End IF Block for return code check	
@@ -341,7 +341,7 @@ prog def edabubble
 		loc bref `r(clntex)'
 
 		// Generate list of all pairwise combination of continuous variables
-		tuples `varlist', asis min(3) max(3)		
+		tuples `varlist', asis min(3) max(3) cvp	
 				
 		// Generate scatter plots for all pairwise combinations of continuous variables
 		forv i = 1/`ntuples' {
@@ -379,13 +379,13 @@ prog def edabubble
 			if _rc == 0 {
 			
 				// Export the scatterplot as a .png file
-				qui: gr export `"`root'/graphs/bubble`i'ByGraph.pdf"', as(pdf) replace
+				qui: gr export `"`root'/graphs/bubble-`y'-`x'-ByGraph.pdf"', as(pdf) replace
 				
 				// Check if user wants to keep the GPH files
 				if "`keepgph'" != "" {
 				
 					// Define local macro with syntax to remove file
-					qui: gr save `"`root'/graphs/bubble`i'ByGraph.gph"', replace
+					qui: gr save `"`root'/graphs/bubble-`y'-`x'-ByGraph.gph"', replace
 					
 				} // End IF Block to remove .gph files
 
@@ -410,7 +410,7 @@ prog def edabubble
 				// Add the scatterplot to the LaTeX document
 				file write doc "\begin{figure}[h!]" _n
 				file write doc `"\caption{Bubble Plot of `yref', `xref', and `zref' \label{fig:bubble`i'ByGraph}}"' _n
-				file write doc `"\includegraphics[width=\textwidth]{bubble`i'ByGraph.pdf}"' _n
+				file write doc `"\includegraphics[width=\textwidth]{bubble-`y'-`x'-ByGraph.pdf}"' _n
 				file write doc "\end{figure} \newpage\clearpage" _n
 				
 			} // End Loop over bubble plot permutations

@@ -12,8 +12,8 @@
 ********************************************************************************
 		
 *! edadistro
-*! v 0.0.0
-*! 28OCT2015
+*! v 0.0.1
+*! 01may2019
 
 // Drop program from memory if already loaded
 cap prog drop edadistro
@@ -135,7 +135,7 @@ prog def edadistro
 		file write doc "\subsubsection{Quantile Quantile Plots}" _n
 
 		// Generate list of all pairwise combination of continuous variables
-		tuples `varlist', asis min(2) max(2)		
+		tuples `varlist', asis min(2) max(2) cvp
 				
 		// Generate scatter plots for all pairwise combinations of continuous variables
 		forv i = 1/`ntuples' {
@@ -151,7 +151,7 @@ prog def edadistro
 			note("Created on: `c(current_date)' at: `c(current_time)'") 
 			
 			// Export to pdf
-			qui: gr export `"`root'/graphs/qq`i'.pdf"', as(pdf) replace
+			qui: gr export `"`root'/graphs/qqplot-`y'-`x'.pdf"', as(pdf) replace
 			
 			// Get LaTeX sanitized x variable name
 			texclean `"`x'"', r
@@ -181,14 +181,14 @@ prog def edadistro
 			if "`keepgph'" != "" {
 			
 				// Define local macro with syntax to remove file
-				qui: gr save `"`root'/graphs/qq`i'.gph"', replace
+				qui: gr save `"`root'/graphs/qqplot-`y'-`x'.gph"', replace
 				
 			} // End IF Block to remove .gph files
 
 			// Add the graph to the LaTeX file
 			file write doc "\begin{figure}[h!]" _n
 			file write doc `"\caption{Quantiles of `ylab' vs Quantiles of `xlab' \label{fig:qq`clny'`clnx'}}"' _n
-			file write doc `"\includegraphics[width=\textwidth]{qq`i'.pdf}"' _n
+			file write doc `"\includegraphics[width=\textwidth]{qqplot-`y'-`x'.pdf}"' _n
 			file write doc "\end{figure} \newpage\clearpage" _n
 
 		} // End Loop over continuous variable permutations

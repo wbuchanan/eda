@@ -12,8 +12,8 @@
 ********************************************************************************
 		
 *! eda
-*! v 0.0.4
-*! 09jul2018
+*! v 0.0.5
+*! 01may2019
 
 // If you don't have the tuples program installed you may want to do that
 // ssc inst tuples, replace
@@ -40,7 +40,7 @@ prog def eda
 	LFITCi LFITCi2(string asis) QFITCi QFITCi2(string asis) FPFITCi 		 ///   
 	FPFITCi2(string asis) noBUBBLEplots noBOXplots noMOSAIC noHEATmap 		 ///   
 	COMPile PDFLatex(passthru) BYGraphs(string asis) BYVars(passthru) 		 ///   
-	BYSeq WEIGHTtype(passthru) ]
+	BYSeq WEIGHTtype(passthru) REBuild ]
 	
 	// List of dependencies needed for the program to execute
 	loc deps tuples spineplot estout brewscheme
@@ -135,13 +135,13 @@ prog def eda
 		
 	
 		// Build root directory
-		dirfile `root', p("graphs") rebuild
-
+		dirfile `root', p("graphs") `rebuild'
+		
 		// Build graphs subdirectory
 		// dirfile, p(`"`root'/graphs"') 
 
 		// Build subdirectory for tables
-		dirfile `root', p("tables") rebuild
+		dirfile `root', p("tables") `rebuild'
 
 		// Check for variable list for strings OK
 		if `"`strok'"' != "" & `"`strok2'"' != "" {
@@ -642,7 +642,7 @@ prog def eda
 			} // End Loop to build one-way tables
 
 			// Generate all of the two-way permutations
-			tuples `categorical', asis min(2) max(2)
+			tuples `categorical', asis min(2) max(2) cvp
 
 			// Set counter to force page dumps from LaTeX
 			loc counter = 0
@@ -654,16 +654,16 @@ prog def eda
 				loc counter = `counter' + 1
 
 				// Get the first variable
-				loc one : word 1 of `tuple`i''
+				loc y : word 1 of `tuple`i''
 				
 				// Get the second variable
-				loc two : word 2 of `tuple`i''
+				loc x : word 2 of `tuple`i''
 					
 				// Create cross-tabulation
-				qui: estpost ta `one' `two' if `edause', mi notot
+				qui: estpost ta `y' `x' if `edause', mi notot
 				
 				// Will the table require more than 6 columns?
-				if `: char `two'[nvals]' >= 5 {
+				if `: char `x'[nvals]' >= 5 {
 						
 					// If so change page orientation	
 					file write doc `"\begin{landscape}"' _n
@@ -671,32 +671,32 @@ prog def eda
 				} // End IF Block for wide tables
 
 				// Export frequency cross tab to file
-				qui: esttab . using `"`root'/tables/tab`one'`two'.tex"', 	 ///   
+				qui: esttab . using `"`root'/tables/tab-`y'-`x'.tex"', 	 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("b") coll("Frequency") noobs uns longtable 			 ///   
 				ti(`"Frequency of `: var l `one'' by `: var l `two''"') replace
 
 				// Export Joint Percentages
-				qui: esttab . using `"`root'/tables/tab`one'`two'.tex"',  	 ///   
+				qui: esttab . using `"`root'/tables/tab-`y'-`x'.tex"',  	 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("pct(fmt(a3))") coll("Overall\%") noobs uns longtable  ///   
 				ti(`"Overall \% of `: var l `one'' by `: var l `two''"') append
 
 				// Export Column-Wise marginal percentages to file
-				qui: esttab . using `"`root'/tables/tab`one'`two'.tex"',  	 ///   
+				qui: esttab . using `"`root'/tables/tab-`y'-`x'.tex"',  	 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("colpct(fmt(a3))") coll("Column\%") noobs uns longtable ///   
 				ti(`"Column \% of `: var l `one'' by `: var l `two''"') append
 
 				// Export Row-Wise marginal percentages to file
-				qui: esttab . using `"`root'/tables/tab`one'`two'.tex"', 	 ///   
+				qui: esttab . using `"`root'/tables/tab-`y'-`x'.tex"', 	 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("rowpct(fmt(a3))") coll("Row\%") noobs uns longtable 	 ///   
 				ti(`"Row \% of `: var l `one'' by `: var l `two''"') append
 
 				// Add the table to the LaTeX document
 				file write doc "\begin{table}" _n
-				file write doc `"\input{`root'/tables/tab`one'`two'.tex}"' _n
+				file write doc `"\input{`root'/tables/tab-`y'-`x'.tex}"' _n
 				file write doc "\end{table}" _n
 
 				// Will the table require more than 6 columns?

@@ -11,8 +11,8 @@
 ********************************************************************************
 		
 *! maketexcomp
-*! v 0.0.3
-*! 09JUL2018
+*! v 0.0.5
+*! 01may2019
 
 // Drop program from memory if it is already loaded
 cap prog drop maketexcomp
@@ -42,6 +42,9 @@ prog def maketexcomp, rclass
 		// Adds a comment header for Windows batch files
 		loc header "::Batch file to compile LaTeX source"
 		
+		// Move to directory
+		loc dirmove `"chdir /d `root'"'
+		
 		// Contructs the reference to the pdf LaTeX binary
 		loc bin `pdflatex'.exe
 		
@@ -62,6 +65,9 @@ prog def maketexcomp, rclass
 		// Add the header for the Bourne Again SHell
 		loc header "#!/bin/bash"
 		
+		// Move to directory
+		loc dirmove `"cd `root'"'
+		
 		// Add reference to the binary for pdf LaTeX
 		loc bin `pdflatex'
 		
@@ -69,7 +75,7 @@ prog def maketexcomp, rclass
 		loc remove "rm"
 		
 		// Constructs shell command to make the script executable
-		loc scriptexec ! chmod +x "`scriptname'.`extension'"
+		loc scriptexec ! chmod +x "`scriptname'`extension'"
 		
 	} // End of ELSE Block for *nix based systems
 	
@@ -78,6 +84,9 @@ prog def maketexcomp, rclass
 	
 	// Writes the appropriate OS header for a terminal script
 	file write comp "`header'" _n
+	
+	// Writes the command to move into the directory where the executable is located
+	file write comp "`dirmove'" _n
 	
 	// Calls pdfLaTeX to do the first pass
 	file write comp `"`bin' "`filenm'.tex""' _n
