@@ -13,7 +13,7 @@
 		
 *! eda
 *! v 0.0.5
-*! 01may2019
+*! 03may2019
 
 // If you don't have the tuples program installed you may want to do that
 // ssc inst tuples, replace
@@ -670,29 +670,41 @@ prog def eda
 					
 				} // End IF Block for wide tables
 
+				// Create cross-tabulation
+				qui: estpost ta `y' `x' if `edause', mi notot
+				
 				// Export frequency cross tab to file
 				qui: esttab . using `"`root'/tables/tab-`y'-`x'.tex"', 	 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("b") coll("Frequency") noobs uns longtable 			 ///   
-				ti(`"Frequency of `: var l `one'' by `: var l `two''"') replace
+				ti(`"Frequency of `: var l `y'' by `: var l `x''"') replace
 
+				// Create cross-tabulation
+				qui: estpost ta `y' `x' if `edause', mi notot
+				
 				// Export Joint Percentages
 				qui: esttab . using `"`root'/tables/tab-`y'-`x'.tex"',  	 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("pct(fmt(a3))") coll("Overall\%") noobs uns longtable  ///   
-				ti(`"Overall \% of `: var l `one'' by `: var l `two''"') append
+				ti(`"Overall \% of `: var l `y'' by `: var l `x''"') append
 
+				// Create cross-tabulation
+				qui: estpost ta `y' `x' if `edause', mi notot
+				
 				// Export Column-Wise marginal percentages to file
 				qui: esttab . using `"`root'/tables/tab-`y'-`x'.tex"',  	 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("colpct(fmt(a3))") coll("Column\%") noobs uns longtable ///   
-				ti(`"Column \% of `: var l `one'' by `: var l `two''"') append
+				ti(`"Column \% of `: var l `y'' by `: var l `x''"') append
 
+				// Create cross-tabulation
+				qui: estpost ta `y' `x' if `edause', mi notot
+				
 				// Export Row-Wise marginal percentages to file
 				qui: esttab . using `"`root'/tables/tab-`y'-`x'.tex"', 	 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("rowpct(fmt(a3))") coll("Row\%") noobs uns longtable 	 ///   
-				ti(`"Row \% of `: var l `one'' by `: var l `two''"') append
+				ti(`"Row \% of `: var l `y'' by `: var l `x''"') append
 
 				// Add the table to the LaTeX document
 				file write doc "\begin{table}" _n
@@ -700,7 +712,7 @@ prog def eda
 				file write doc "\end{table}" _n
 
 				// Will the table require more than 6 columns?
-				if `: char `two'[nvals]' >= 5 {
+				if `: char `x'[nvals]' >= 5 {
 						
 					// If so revert page orientation	
 					file write doc `"\end{landscape}"' _n
