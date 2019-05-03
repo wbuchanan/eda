@@ -10,7 +10,11 @@ d KW: Color
 d
 d Requires: Stata version 14
 d
+<<<<<<< HEAD
 d Distribution-Date: 20180717
+=======
+d Distribution-Date: 20190501
+>>>>>>> fc0be9caeaca4b6c72a256910a77766909661b94
 d
 d Author: Billy Buchanan 
 d	  Director, 
