@@ -13,13 +13,13 @@
 *     void																	   *
 *                                                                              *
 * Lines -                                                                      *
-*     134                                                                      *
+*     164                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! dirfile
-*! v 0.0.6
-*! 09NOV2016
+*! v 0.0.7
+*! 21FEB2018
 
 // Drop the program from memory if loaded
 cap prog drop dirfile
@@ -33,13 +33,45 @@ prog def dirfile
 	// Syntax for calling the program
 	syntax [anything(name = root id = "Root directory")], [ Path(string) REBuild ]
 	
+	// Test whether there are sufficient arguments to allow the program to work
+	if `"`root'`path'"' == "" {
+	
+		// If no root and path specified let the user know that it is an issue
+		di as err "Must provide a root directory and/or a path to search for"
+		
+		// Return an error code
+		err 198
+		
+	} // End of IF Block for invalid arguments
+	
+	// If no root is specified it needs to be parsed
+	else if `"`root'"' == "" & `"`path'"' != "" {
+	
+		// Defines a container to store the root value from the path macro
+		mata: root = ""
+		
+		// Stores a new version of the path value that only contains the 
+		// subdirectory of interest
+		mata: path = ""
+		
+		// Splits the path value into component parts
+		mata: pathsplit(st_local("path"), root, path)
+		
+		// Sets the value of the root macro
+		mata: st_local("root", root)
+		
+		// Sets the value of the path macro to the subdirectory of interest
+		mata: st_local("path", path)
+		
+	} // End ELSEIF Block to parse a value pased only to path
+	
 	// Default value for path parameter
 	if `"`path'"' == "" loc pmatch "*"
 	
 	// Passes the value from the path parameter to be used in extended macro function
 	else loc pmatch `path'
 	
-	// Check for file path existence
+	// Use the path argument for the root if no root is specified with wildcard
 	qui: loc newfile : dir "`root'" dirs "`pmatch'", respectcase
 	
 	// Clean up quotation marks
@@ -131,6 +163,3 @@ prog def chksubdir
 // End of subroutine	
 end
 
-
-	
-	

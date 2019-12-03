@@ -1,6 +1,6 @@
-d 'EDA': a program for automated exploratory data analysis
+d 'EDA': a program for automating exploratory data analysis in Stata.
 d
-d eda is a program used for automated exploratory data analysis.  
+d eda is a program for automating exploratory data analysis in Stata.  
 d
 d KW: Exploratory Data Analysis
 d KW: Data Visualization
@@ -10,16 +10,17 @@ d KW: Color
 d
 d Requires: Stata version 14
 d
-d Distribution-Date: 20170220
+d Distribution-Date: 20191203
 d
 d Author: Billy Buchanan 
 d	  Director, 
-d	  Office of Data, Research, and Accountability
+d	  Grants, Research, Accountability, & Data
 d	  Fayette County Public Schools
-d Support: email Billy [dot] Buchanan @t fayette [dot] kyschools [dot] us
+d Support: {browse "https://github.com/wbuchanan/eda": Project Repository}
+d Author Email : Billy [dot] Buchanan @t fayette [dot] kyschools [dot] us
+d Bugs/Questions : Please visit the project repository linked above
 d
 f catorcont.ado
-f dirfile.ado
 f eda.ado
 f edabar.ado
 f edabox.ado
@@ -36,7 +37,6 @@ f grlabsplit.ado
 f maketexcomp.ado
 f progcheck.ado
 f texclean.ado
-f eda-example.pdf
 f eda.sthlp
 
 

@@ -4,13 +4,13 @@
 * the dependencies if they are missing.										   *
 *                                                                              *
 * Lines -                                                                      *
-*     206                                                                      *
+*     204                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! progcheck
-*! v 0.0.0
-*! 21OCT2015
+*! v 0.0.1
+*! 17jul2018
 
 // Drop the program from memory if it is already loaded in memory
 cap prog drop progcheck

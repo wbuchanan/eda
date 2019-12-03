@@ -7,13 +7,13 @@
 * 	  entries in the LaTeX document  										   *
 *                                                                              *
 * Lines -                                                                      *
-*     93                                                                       *
+*     97                                                                       *
 *                                                                              *
 ********************************************************************************
 		
 *! edaladder
-*! v 0.0.0
-*! 28OCT2015
+*! v 0.0.2
+*! 22sep2019
 
 // Drop program from memory if already loaded
 cap prog drop edaladder
@@ -28,7 +28,7 @@ prog def edaladder
 	syntax varlist(min=1) [if] [in], 	root(string asis)					 ///   
 										[HISTOGRamopts(string asis)			 ///   
 										scheme(passthru)					 ///   
-										keepgph	]
+										keepgph	DEBug ]
 										
 	// Mark only the observations to use
 	marksample touse, strok novarlist
@@ -46,7 +46,7 @@ prog def edaladder
 		// Export to pdf
 		qui: gr export `"`root'/graphs/gladder`v'.pdf"', as(pdf) replace
 	
-		// Create the gladder graph
+		// Create the qladder graph
 		qladder `v' if `touse', `scheme' `histogramopts'					 ///   
 		ti("Ladder of Powers Quantile Normal Plots for " `:char `v'[title]')
 	
@@ -72,11 +72,15 @@ prog def edaladder
 		file write doc "\begin{figure}[h!]" _n
 		file write doc `"\caption{`vlab' Ladder of Powers Histograms \label{fig:gladder`vref'}}"' _n
 		file write doc `"\includegraphics[width=\textwidth]{gladder`v'.pdf}"' _n
-		file write doc "\end{figure} \newpage\clearpage" _n
+		file write doc "\end{figure}" _n
+		file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+		file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 		file write doc "\begin{figure}[h!]" _n
 		file write doc `"\caption{`vlab' Ladder of Powers Quantile Normal Plots \label{fig:qladder`vref'}}"' _n
 		file write doc `"\includegraphics[width=\textwidth]{qladder`v'.pdf}"' _n
-		file write doc "\end{figure} \newpage\clearpage" _n
+		file write doc "\end{figure}" _n
+		file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+		file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 		
 		// Check if user wants to keep the GPH files
 		if "`keepgph'" != "" {

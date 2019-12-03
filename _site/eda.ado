@@ -7,13 +7,13 @@
 *	  the LaTeX source document.											   *
 *                                                                              *
 * Lines -                                                                      *
-*     755                                                                      *
+*     914                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! eda
-*! v 0.0.0
-*! 30OCT2015
+*! v 0.0.9
+*! 03dec2019
 
 // If you don't have the tuples program installed you may want to do that
 // ssc inst tuples, replace
@@ -27,83 +27,120 @@ prog def eda
 	version 14
 
 	// Syntax structure of program	
-	syntax [varlist] [using/] [if] [in], Output(string) Root(string)		 ///   
-	[ IDvars(varlist) STRok STRok2(varlist) MINNsize(passthru) 				 ///   
+	syntax [varlist] [using/] [if] [in], Output(string) Root(string)     ///   
+	[ IDvars(varlist) STRok STRok2(varlist) MINNsize(passthru) 	     ///   
 	MINCat(passthru) MAXCat(passthru) CATVars(passthru) CONTVars(passthru) 	 ///   
 	AUTHorname(string) REPOrtname(string) MISSing scheme(passthru) keepgph 	 ///   
-	PERCent GRLABLength(passthru) noBARGRaphs BARGRAphopts(string asis)		 ///   
-	noPIECharts PIECHartopts(string asis) noHISTOgrams 						 ///   
+	PERCent GRLABLength(passthru) noBARGRaphs BARGRAphopts(string asis)  ///   
+	noPIECharts PIECHartopts(string asis) noHISTOgrams 		     ///   
 	HISTOGramopts(string asis) KDENSity KDENSOpts(string asis) FIVENUMsum 	 ///   
-	FNSOpts(string asis) noDISTROplots DISTROPlotopts(string asis) 			 ///   
-	noLADDERplots noSCATterplots LFIT LFIT2(string asis) QFIT 				 ///   
+	FNSOpts(string asis) noDISTROplots DISTROPlotopts(string asis) 	     ///   
+	noLADDERplots noSCATterplots LFIT LFIT2(string asis) QFIT            ///   
 	QFIT2(string asis) LOWess LOWess2(string asis) FPFIT FPFIT2(string asis) ///   
-	LFITCi LFITCi2(string asis) QFITCi QFITCi2(string asis) FPFITCi 		 ///   
-	FPFITCi2(string asis) noBUBBLEplots noBOXplots noMOSAIC noHEATmap 		 ///   
-	COMPile PDFLatex(passthru) BYGraphs(string asis) BYVars(passthru) 		 ///   
-	BYSeq WEIGHTtype(passthru) ]
-
-	// Make the sample to use for the program
-	marksample edause, strok novarlist
+	LFITCi LFITCi2(string asis) QFITCi QFITCi2(string asis) FPFITCi      ///   
+	FPFITCi2(string asis) noBUBBLEplots noBOXplots noMOSAIC noHEATmap    ///   
+	COMPile PDFLatex(passthru) BYGraphs(string asis) BYVars(passthru)    ///   
+	BYSeq WEIGHTtype(passthru) REBuild DEBug ]
 	
-	// Check percentage option
-	if "`percent'" == "" {
-
-		// If percentage is not specified set it to frequency
-		loc bartype count
+	// List of dependencies needed for the program to execute
+	loc deps tuples spineplot estout brewscheme
+	
+	// Loop over dependencies
+	foreach d of loc deps {
+	
+		// Test if the user has tuples installed
+		cap which `d'
 		
-	} // End IF Block for percent/count switch
-
-	// If turned on
-	else {
-
-		// Set the bartype macro
-		loc bartype percent
-
-	} // End ELSE Block for percent option
-
-	// Check author name field	
-	if `"`authorname'"' == "" {
-
-		// If null pull the username from the system
-		loc authorname `c(username)'
+		// If the user does not have tuples
+		if _rc != 0 {
 		
-	} // End IF Block for author name
-	
-	// Check for report name
-	if `"`reportname'"' == "" {
-	
-		// Get file name
-		loc reportname $S_FN
-		
-	} // End IF Block for null report name
-	
-	// Check slow option
-	if "`slow'" != "" {
-	
-		// Set local macro with sleep command
-		loc slow sleep 5000
-		
-	} // End IF Block for slow option
+			// Print error message to screen
+			di as err "You do not have the dependency `d' installed on your machine."  
+			
+			// Ask user if they would like to install the package
+			di "Would you like to install it now? (Y/N)" _request(depcheck)
 
+			// Loop until a valid response is received
+			while !inlist(`"$depcheck"', "y", "Y", "n", "N") {
+			
+				// Print updated error message
+				di "I'm sorry, I do not understand what you would like me to do."
+				
+				// As if they would like to install the program again
+				di "Would you like to install `d' now? (Y/N)" _request(depcheck)
+				
+			} // End WHILE Loop for invalid responses
+			
+			// If they would like to install the dependency
+			if inlist(`"$depcheck"', "y", "Y") {
+			
+				// For other dependencies install from SSC
+				if `"`d'"' != "brewscheme" ssc inst `d', replace
+				
+				// For brewscheme install from repository
+				else net inst brewscheme, from("http://wbuchanan.github.io/brewscheme")
+				
+			} // End IF Block for installation
+			
+			// If they do not want to install the dependency
+			else {
+				
+				// Print error message to screen
+				di as err "This program cannot execute without its dependencies."
+				di as err "The program will stop running now."
+				
+				// Exit the program
+				exit
+				
+			} // End ELSE Block for not installing the dependencies
+		
+		} // End IF Block for dependency checks
+
+	} // End Loop over dependencies	
+	
+	// Remove depcheck global
+	glo depcheck ""
+		
 	// Preserve the current state of the data in memory
 	preserve
 
-		// If user specifies data not currently in memory
-		if `"`using'"' != "" {
+		// If using specified load those data
+		if `"`using'"' != "" qui: use `varlist' `"`using'"', clear
 
-			// Load data if file is specified
-			qui: use `varlist' `"`using'"', clear
-
-		} // End IF Block for using file
+		// Make the sample to use for the program
+		marksample edause, strok novarlist
+		
+		// If percentage is not specified set it to frequency
+		if "`percent'" == ""  loc bartype count
 			
-		// Build root directory
-		dirfile `root', p("graphs") rebuild
+		// If turned on set the bartype macro to percent
+		else loc bartype percent
 
+		// If no author name use the system's username
+		if `"`authorname'"' == "" loc authorname `c(username)'
+			
+		// If no report name set the report name parameter to the file name
+		if `"`reportname'"' == ""  loc reportname $S_FN
+			
+		// Replace Windows style path delimiters in root with *nix path delimiters
+		loc root `: subinstr loc root "\" "/", all'
+		
+		// Replace any windows path delimiters with *nix style path delimiters
+		loc reportname `: subinstr loc reportname "\" "/", all'
+				
+		// If slow option is enabled, reassign the macro with the sleep command
+		if "`slow'" != "" loc slow sleep 5000
+		
+		// Test whether the root directory exists
+		
+		// Build root directory
+		dirfile `root', p("graphs") `rebuild'
+		
 		// Build graphs subdirectory
 		// dirfile, p(`"`root'/graphs"') 
 
 		// Build subdirectory for tables
-		dirfile `root', p("tables") rebuild
+		dirfile `root', p("tables") `rebuild'
 
 		// Check for variable list for strings OK
 		if `"`strok'"' != "" & `"`strok2'"' != "" {
@@ -174,14 +211,9 @@ prog def eda
 		// Remove any id variables from the variable list
 		loc numvars : list numvars - idvars
 
-		// Check for varlist argument
-		if `"`varlist'"' != "" {
-
-			// Only include variables in varlist
-			loc numvars : list numvars & varlist
+		// Select only variables that are in the variable list and numeric
+		if `"`varlist'"' != "" loc numvars : list numvars & varlist
 			
-		} // End IF Block for varlist argument
-
 		// Allocates namespace for tempfile name
 		tempfile edatemp
 		
@@ -215,7 +247,9 @@ prog def eda
 		file write doc "\usepackage{pdflscape}" _n
 		file write doc `"\usepackage{tocloft}"' _n
 		file write doc `"\usepackage{titlesec}"' _n
-		file write doc `"\usepackage{fixltx2e}"' _n
+
+		// Deprecating the use of the fixltx2e package
+		// file write doc `"\usepackage{fixltx2e}"' _n
 		file write doc "\usepackage[letterpaper,margin=0.25in]{geometry}" _n
 		file write doc "\usepackage{graphicx}" _n
 		file write doc "\usepackage[hidelinks]{hyperref}" _n
@@ -248,9 +282,9 @@ prog def eda
 		file write doc `"\setcounter{LTchunksize}{50}"' _n 
 		file write doc "\begin{document}" _n
 		file write doc "\begin{titlepage} \maketitle \end{titlepage}" _n
-		file write doc "\newpage\clearpage \tableofcontents \newpage\clearpage" _n
-		file write doc "\listoffigures \newpage\clearpage" _n 
-		file write doc "\listoftables \newpage\clearpage" _n
+		file write doc "\newpage\clearpage \addtocontents{toc}{\protect\hypertarget{toc}{}} \tableofcontents \newpage\clearpage" _n
+		file write doc "\addtocontents{tof}{\protect\hypertarget{tof}{}} \listoffigures \newpage\clearpage" _n 
+		file write doc "\addtocontents{tot}{\protect\hypertarget{tot}{}} \listoftables \newpage\clearpage" _n
 
 		// Make sure the data are stored more efficiently
 		qui: compress
@@ -328,7 +362,8 @@ prog def eda
 		
 			// Call Bar graph subroutine
 			edabar `categorical' if `edause', root(`root') `bargraphopts' 	 ///   
-											  bart(`bartype') `scheme' `keepgph'
+											  bart(`bartype') `scheme' 		 ///   
+											  `keepgph' `debug'
 
 		} // End IF Block for bar graph creation
 		
@@ -337,7 +372,7 @@ prog def eda
 
 			// Call Pie chart subroutine
 			edapie `categorical' if `edause', root(`root') `piechartopts' 	 ///   
-			`scheme' `keepgph'
+			`scheme' `keepgph' `debug'
 
 		} // End IF Block for pie charts option
 
@@ -356,7 +391,7 @@ prog def eda
 			// Call histogram subroutine
 			edahist `continuous' if `edause', `histogramopts' `scheme' 		 ///   
 			root(`root') `kdensity' kdensopts(`kdensopts') `fivenumsum' 	 ///   
-			fnsopts(`fnsopts')
+			fnsopts(`fnsopts') `debug'
 
 		} // End IF Block for histograms
 
@@ -365,7 +400,7 @@ prog def eda
 
 			// Call distribution plot subroutine
 			edadistro `continuous' if `edause', root(`root') `scheme' 		 ///   
-			`keepgph' distrop(`distroplotopts')
+			`keepgph' distrop(`distroplotopts') `debug'
 
 		} // End IF Block for distribution plots
 
@@ -374,7 +409,7 @@ prog def eda
 
 			// Call subroutine for ladders of power graphs
 			edaladder `continuous' if `edause', `scheme' `histogramopts' 	 ///   
-			root(`root')
+			root(`root') `debug'
 
 		} // End IF Block for ladder of power graphs
 
@@ -391,11 +426,11 @@ prog def eda
 		if "`scatterplots'" != "noscatterplots" & !inlist(`contvarcount', 0, .) {
 
 			// Call to scatterplot subroutine
-			edascat `continuous' if `edause', `lfit' lfit2(`lfit2')	`qfit' 	 ///   
-			qfit2(`qfit2') `lowess' lowess2(`lowess2') `fpfit' 				 ///   
-			fpfit2(`fpfit2') `lfitci' lfitci2(`lfitci2') `qfitci' 			 ///   
-			qfitci2(`qfitci2') `fpfitci' fpfitci2(`fpfitci2') root(`root') 	 ///   
-			`scheme' `keepgph'
+			edascat `continuous' if `edause', `lfit' lfit2(`lfit2') `qfit' ///   
+			qfit2(`qfit2') `lowess' lowess2(`lowess2') `fpfit' 	       ///   
+			fpfit2(`fpfit2') `lfitci' lfitci2(`lfitci2') `qfitci'	       ///   
+			qfitci2(`qfitci2') `fpfitci' fpfitci2(`fpfitci2') root(`root') ///   
+			`scheme' `keepgph' `debug'
 
 		} // End IF Block for scatter plots
 
@@ -403,7 +438,8 @@ prog def eda
 		if "`bubbleplots'" != "nobubbleplots" & !inlist(`contvarcount', 0, .) {
 
 			// Call subroutine for bubble plots
-			edabubble `continuous' if `edause', root(`root') `scheme' `keepgph'
+			edabubble `continuous' if `edause', root(`root') `scheme' 		 ///   
+			`keepgph' `debug'
 
 		} // End IF Block for bubble plots
 
@@ -412,7 +448,7 @@ prog def eda
 
 			// Call subroutine for joint distribution plots
 			edadistro `continuous' if `edause', nounivariate root(`root') 	 ///   
-			`scheme' `keepgph' distrop(`distroplotopts')
+			`scheme' `keepgph' distrop(`distroplotopts') `debug'
 
 		} // End IF Block for quantile-quantile plots
 	
@@ -422,7 +458,7 @@ prog def eda
 
 			// Create Box Plots
 			edabox if `edause', cat(`categorical') cont(`continuous') 		 ///   
-			root(`root') `scheme' `keepgph'
+			root(`root') `scheme' `keepgph' `debug'
 			
 		} // End IF Block for box plots
 
@@ -431,7 +467,7 @@ prog def eda
 
 			// Subroutine used to generate mosaic/spine plots
 			edamosaic `categorical' if `edause', root(`root') `scheme'  	 ///   
-			`missing' `percent'	`keepgph'
+			`missing' `percent'	`keepgph' `debug'
 
 		} // End IF Block for mosaic plot creation
 
@@ -439,7 +475,7 @@ prog def eda
 		if "`heatmap'" != "noheatmap" & !inlist(`contvarcount', 0, ., 1, 2) {
 
 			// Create heatmap from continuous variables
-			edaheat `continuous' if `edause', root(`root') `keepgph'
+			edaheat `continuous' if `edause', root(`root') `keepgph' `debug'
 
 			// Reloads the tempfile with the characteristics saved
 			qui: use `edatemp'.dta, clear
@@ -463,7 +499,7 @@ prog def eda
 
 				// Call Bar graph subroutine
 				edabar `categorical' if `edause', `bargraphopts' `byvars'	 ///   
-				root(`root') bart(`bartype') `scheme' `keepgph' `byseq'
+				root(`root') bart(`bartype') `scheme' `keepgph' `byseq' `debug'
 
 			} // End IF Block for bar graph creation
 			
@@ -473,7 +509,7 @@ prog def eda
 
 				// Call Pie chart subroutine
 				edapie `categorical' if `edause', `piechartopts'			 ///   
-				`scheme' `keepgph' root(`root') `byvars' `byseq'
+				`scheme' `keepgph' root(`root') `byvars' `byseq' `debug'
 
 			} // End IF Block for pie charts option
 			
@@ -487,7 +523,7 @@ prog def eda
 				// Call histogram subroutine
 				edahist `continuous' if `edause', `histogramopts' `scheme' 	 ///   
 				`kdensity' kdensopts(`kdensopts') `fivenumsum' `byvars'		 ///   
-				fnsopts(`fnsopts') root(`root') `byseq'
+				fnsopts(`fnsopts') root(`root') `byseq' `debug'
 
 			} // End IF Block for histograms
 
@@ -496,11 +532,10 @@ prog def eda
 			& inlist("scatterplot", `"`: subinstr loc bygraphs `" "' `"", ""''"') == 1 {
 
 				// Call to scatterplot subroutine
-				edascat `continuous' if `edause', `lfit' lfit2(`lfit2')	 	 ///   
-				qfit2(`qfit2') `lowess' lowess2(`lowess2') `fpfit' 			 ///   
-				fpfit2(`fpfit2') `lfitci' lfitci2(`lfitci2') `qfitci' 		 ///   
-				qfitci2(`qfitci2') `fpfitci' fpfitci2(`fpfitci2') `qfit'	 ///   
-				`scheme' `keepgph' root(`root') `byvars' `byseq'
+				edascat `continuous' if `edause', `lfit' `lfit2' `qfit' 	 ///   
+				`qfit2' `lowess' `lowess2' `fpfit' `fpfit2' `lfitci' 		 ///   
+				`lfitci2' `qfitci' `qfitci2' `fpfitci' `fpfitci2' 			 ///   
+				root(`root') `scheme' `keepgph' `byvars' `byseq' `debug'
 
 			} // End IF Block for scatter plots
 
@@ -510,7 +545,7 @@ prog def eda
 
 				// Call subroutine for bubble plots
 				edabubble `continuous' if `edause', `scheme' `keepgph'		 ///   
-				root(`root') `byvars' `byseq'
+				root(`root') `byvars' `byseq' `debug'
 
 			} // End IF Block for bubble plots
 
@@ -521,7 +556,7 @@ prog def eda
 
 				// Create Box Plots
 				edabox if `edause', cat(`categorical') cont(`continuous') 	 ///   
-				`scheme' `keepgph'  root(`root') `byvars' `byseq'
+				`scheme' `keepgph'  root(`root') `byvars' `byseq' `debug'
 				
 			} // End IF Block for box plots
 
@@ -531,7 +566,7 @@ prog def eda
 
 				// Subroutine used to generate mosaic/spine plots
 				edamosaic `categorical' if `edause', `scheme' `missing'  	 ///   
-				`percent'	`keepgph' root(`root') `byvars' `byseq'
+				`percent'	`keepgph' root(`root') `byvars' `byseq' `debug'
 
 			} // End IF Block for mosaic plot creation
 		
@@ -578,15 +613,17 @@ prog def eda
 				qui: estpost ta `v' if `edause', mi notot
 				
 				// Export table to LaTeX file
-				esttab . using `"`root'/tables/tab`v'.tex"', uns noobs 		 ///   
+				qui: esttab . using `"`root'/tables/tab`v'.tex"', uns noobs  ///   
 				longtable varlabels(`e(labels)') eql("`v'") ml(, none) 		 ///   
-				nonum cells("b pct(fmt(a3))") replace						 ///   
+				nonum cells("b pct(fmt(a3))") replace 		 ///   
 				coll("Frequency" "Percentage") ti(`"Distribution of `: var l `v''"')
 				
 				// Add the table to the LaTeX document
 				file write doc "\begin{table}" _n
-				file write doc `"\input{`root'/tables/tab`v'.tex}"' _n
+				file write doc `"\input{"`root'/tables/tab`v'"}"' _n
 				file write doc "\end{table}" _n
+				file write doc "\hyperlink{tot}{Back to List of Tables}" _n
+				file write doc "\hyperlink{toc}{Back to Table of Contents}" _n
 				
 				// Will the table require more than 6 columns?
 				if `: char `v'[nvals]' >= 5 {
@@ -607,7 +644,7 @@ prog def eda
 			} // End Loop to build one-way tables
 
 			// Generate all of the two-way permutations
-			tuples `categorical', asis min(2) max(2)
+			tuples `categorical', asis min(2) max(2) cvp
 
 			// Set counter to force page dumps from LaTeX
 			loc counter = 0
@@ -619,53 +656,71 @@ prog def eda
 				loc counter = `counter' + 1
 
 				// Get the first variable
-				loc one : word 1 of `tuple`i''
+				loc y : word 1 of `tuple`i''
 				
 				// Get the second variable
-				loc two : word 2 of `tuple`i''
+				loc x : word 2 of `tuple`i''
 					
 				// Create cross-tabulation
-				qui: estpost ta `one' `two' if `edause', mi notot
+				qui: estpost ta `y' `x' if `edause', mi notot
 				
 				// Will the table require more than 6 columns?
-				if `: char `two'[nvals]' >= 5 {
+				if `: char `x'[nvals]' >= 5 {
 						
 					// If so change page orientation	
 					file write doc `"\begin{landscape}"' _n
 					
 				} // End IF Block for wide tables
 
+				// Create cross-tabulation
+				qui: estpost ta `y' `x' if `edause', mi notot
+				
 				// Export frequency cross tab to file
-				esttab . using `"`root'/tables/tab`one'`two'.tex"', replace  ///   
+				qui: esttab . using `"`root'/tables/tab-`y'-`x'.tex"', 		 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
-				cells("b") coll("Frequency") noobs uns longtable 			 ///   
-				ti(`"Frequency of `: var l `one'' by `: var l `two''"')
+				cells("b") coll("Frequency") noobs uns longtable replace	 ///   
+				ti(`"Frequency of `: var l `y'' by `: var l `x''"') 		 ///   
+				
 
+				// Create cross-tabulation
+				qui: estpost ta `y' `x' if `edause', mi notot
+				
 				// Export Joint Percentages
-				esttab . using `"`root'/tables/tab`one'`two'.tex"', append   ///   
+				qui: esttab . using `"`root'/tables/tab-`y'-`x'.tex"',  	 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("pct(fmt(a3))") coll("Overall\%") noobs uns longtable  ///   
-				ti(`"Overall \% of `: var l `one'' by `: var l `two''"')
+				ti(`"Overall \% of `: var l `y'' by `: var l `x''"') append	 ///   
+				
 
+				// Create cross-tabulation
+				qui: estpost ta `y' `x' if `edause', mi notot
+				
 				// Export Column-Wise marginal percentages to file
-				esttab . using `"`root'/tables/tab`one'`two'.tex"', append   ///   
+				qui: esttab . using `"`root'/tables/tab-`y'-`x'.tex"',  	 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("colpct(fmt(a3))") coll("Column\%") noobs uns longtable ///   
-				ti(`"Column \% of `: var l `one'' by `: var l `two''"')
+				ti(`"Column \% of `: var l `y'' by `: var l `x''"') append	 ///   
+				
 
+				// Create cross-tabulation
+				qui: estpost ta `y' `x' if `edause', mi notot
+				
 				// Export Row-Wise marginal percentages to file
-				esttab . using `"`root'/tables/tab`one'`two'.tex"', append   ///   
+				qui: esttab . using `"`root'/tables/tab-`y'-`x'.tex"', 		 ///   
 				varlabels(`e(labels)') eql(`e(eqlabels)') ml(, none) nonum   ///   
 				cells("rowpct(fmt(a3))") coll("Row\%") noobs uns longtable 	 ///   
-				ti(`"Row \% of `: var l `one'' by `: var l `two''"')
+				ti(`"Row \% of `: var l `y'' by `: var l `x''"') append		 ///   
+				
 
 				// Add the table to the LaTeX document
 				file write doc "\begin{table}" _n
-				file write doc `"\input{`root'/tables/tab`one'`two'.tex}"' _n
+				file write doc `"\input{"`root'/tables/tab-`y'-`x'"}"' _n
 				file write doc "\end{table}" _n
+				file write doc "\hyperlink{tot}{Back to List of Tables}" _n
+				file write doc "\hyperlink{toc}{Back to Table of Contents}" _n
 
 				// Will the table require more than 6 columns?
-				if `: char `two'[nvals]' >= 5 {
+				if `: char `x'[nvals]' >= 5 {
 						
 					// If so revert page orientation	
 					file write doc `"\end{landscape}"' _n
@@ -694,31 +749,32 @@ prog def eda
 			qui: estpost su `continuous' if `edause', de  quietly
 
 			// Create LaTeX table of parametric descriptive stats
-			esttab . using `"`root'/tables/descriptives.tex"', nonum nodep   ///   
+			qui: esttab . using `"`root'/tables/descriptives.tex"', nonum    ///   
 			nomti noobs ti("Descriptive Statistics of Continuous Variables") ///   
 			cells("count mean(fmt(3)) sd(fmt(3))") label replace longtable 	 ///   
-			varlabels(`e(labels)') collab("N" "$\mu$" "$\sigma$")			 ///   
-			addn("$\mu$ = Average $\sigma$ = Standard Deviation")
+			varlabels(`e(labels)') collab("N" "$\mu$" "$\sigma$") nodep		 ///   
+			addn("$\mu$ = Average $\sigma$ = Standard Deviation") 			 ///   
+			
 
 			// Create summary statistics table for continuous variables
 			qui: estpost su `continuous' if `edause', de  quietly
 
 			// Create table of higher order moment conditions
-			esttab . using `"`root'/tables/higherorder.tex"', nodep nomti    ///   
+			qui: esttab . using `"`root'/tables/higherorder.tex"', nomti   	 ///   
 			label cells("skewness(fmt(3)) kurtosis(fmt(3))") replace nonum 	 ///   
 			collab("Skewness" "Kurtosis") longtable varlabels(`e(labels)')	 ///   
-			ti("Higher Order Moment Conditions") noobs
+			ti("Higher Order Moment Conditions") noobs nodep 
 			
 			// Create summary statistics table for continuous variables
 			qui: estpost su `continuous' if `edause', de  quietly
 
 			// Create LaTeX table of non-parametric stats
-			esttab . using `"`root'/tables/orderstats.tex"', nodep nomti  	 ///   
+			qui: esttab . using `"`root'/tables/orderstats.tex"', nomti  	 ///   
 			label ti("Order Statistics") nonum  varlabels(`e(labels)') 		 ///   
 			longtable collab("Min." "25\%ile" "Median" "75\%ile" "Max")		 ///   
 			cells("min(fmt(3)) p25(fmt(3)) p50(fmt(3)) p75(fmt(3)) max(fmt(3))") ///
 			addn("This is also known as Tukey's Five Number Summary") 		 ///   
-			noobs replace
+			noobs replace nodep 
 			
 			// Create correlation matrix
 			// estpost correlate `continuous', matrix
@@ -728,14 +784,20 @@ prog def eda
 
 			// Add both tables to LaTeX document
 			file write doc "\begin{table}" _n
-			file write doc `"\input{`root'/tables/descriptives.tex}"' _n
+			file write doc `"\input{"`root'/tables/descriptives"}"' _n
 			file write doc "\end{table}" _n
+			file write doc "\hyperlink{tot}{Back to List of Tables}" _n
+			file write doc "\hyperlink{toc}{Back to Table of Contents}" _n
 			file write doc "\begin{table}" _n
-			file write doc `"\input{`root'/tables/higherorder.tex}"' _n
+			file write doc `"\input{"`root'/tables/higherorder"}"' _n
 			file write doc "\end{table}" _n
+			file write doc "\hyperlink{tot}{Back to List of Tables}" _n
+			file write doc "\hyperlink{toc}{Back to Table of Contents}" _n
 			file write doc "\begin{table}" _n
-			file write doc `"\input{`root'/tables/orderstats.tex}"' _n
+			file write doc `"\input{"`root'/tables/orderstats"}"' _n
 			file write doc "\end{table}" _n
+			file write doc "\hyperlink{tot}{Back to List of Tables}" _n
+			file write doc "\hyperlink{toc}{Back to Table of Contents}" _n
 			file write doc "\clearpage" _n
 
 		} // End IF Block for continuous variables
@@ -755,7 +817,11 @@ prog def eda
 			// Create conditional descriptive statistics
 			foreach cat of var `categorical' {
 			
-				file write doc `"\subsection{Tables by groups of `cat'}"' _n
+				// Get new varname with underscores escaped
+				loc thiscatvar "`= ustrregexra("`cat'", "_", "\_")'"
+				
+				// Adds the subsection name to the LaTeX document
+				file write doc `"\subsection{Tables by groups of `thiscatvar'}"' _n
 
 				// Will the table require more than 6 columns?
 				if `: char `cat'[nvals]' >= 5 {
@@ -773,29 +839,33 @@ prog def eda
 				s(mean) c(s) 
 
 				// Create the output table
-				esttab . using `"`root'/tables/condmean`cat'.tex"', label 	 ///   
-				nomti nonum main(mean) nostar uns longtable replace			 ///   
-				coll(`e(labels)') addn(" ") noobs							 ///   
+				qui: esttab . using `"`root'/tables/condmean`cat'.tex"',  	 ///   
+				nomti nonum main(mean) nostar uns longtable replace	label	 ///   
+				coll(`e(labels)') addn(" ") noobs 			 ///   
 				ti("Averages by groups of `: var l `cat''")
 				
 				// Add table to LaTeX document
 				file write doc "\begin{table}" _n
 				file write doc `"\input{"`root'/tables/condmean`cat'"}"' _n
 				file write doc "\end{table}" _n
+				file write doc "\hyperlink{tot}{Back to List of Tables}" _n
+				file write doc "\hyperlink{toc}{Back to Table of Contents}" _n
 				
 				// Get means/SDs for each category in variable cat
 				qui: estpost tabstat `continuous', by(`cat') s(sd) c(s) 
 
 				// Create the output table
-				esttab . using `"`root'/tables/condsd`cat'.tex"', label 	 ///   
-				nomti nonum main(sd) nostar uns longtable replace			 ///   
-				coll(`e(labels)')  addn(" ") noobs							 ///   
+				qui: esttab . using `"`root'/tables/condsd`cat'.tex"', 		 ///   
+				nomti nonum main(sd) nostar uns longtable replace label		 ///   
+				coll(`e(labels)')  addn(" ") noobs 		 ///   
 				ti("Standard Deviations by groups of `: var l `cat''")
 
 				// Add table to LaTeX document
 				file write doc "\begin{table}" _n
 				file write doc `"\input{"`root'/tables/condsd`cat'"}"' _n
 				file write doc "\end{table}" _n
+				file write doc "\hyperlink{tot}{Back to List of Tables}" _n
+				file write doc "\hyperlink{toc}{Back to Table of Contents}" _n
 				
 				// Will the table require more than 6 columns?
 				if `: char `cat'[nvals]' >= 5 {
@@ -827,7 +897,7 @@ prog def eda
 		if "`compile'" != "" {
 
 			// Create bash/batch script to compile source
-			maketexcomp "`root'/`output'", scr(`"`root'/makeLaTeX"')	 ///   
+			maketexcomp "`root'/`output'", scr(`"`root'/makeLaTeX"')		 ///   
 			`pdflatex' root(`root')
 			
 			// Local with code to execute compiler script

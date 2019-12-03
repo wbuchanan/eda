@@ -7,13 +7,13 @@
 *	  LaTeX document  														   *
 *                                                                              *
 * Lines -                                                                      *
-*     310                                                                      *
+*     346                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edabox
-*! v 0.0.1
-*! 10NOV2015
+*! v 0.0.3
+*! 14oct2019
 
 // Drop program from memory if already loaded
 cap prog drop edabox
@@ -25,8 +25,8 @@ prog def edabox
 	version 14
 	
 	// Syntax structure for edabar subroutine
-	syntax [if] [in], root(string asis)	cat(varlist) cont(varlist)			 ///   
-					  [ scheme(passthru) keepgph MISSing byvars(varlist) byseq ]
+	syntax [if] [in], root(string asis)	cat(varlist) cont(varlist) [ byseq	 ///   
+					  scheme(passthru) keepgph MISSing byvars(varlist) DEBug ]
 										
 	// Mark only the observations to use
 	marksample touse, strok novarlist
@@ -72,7 +72,7 @@ prog def edabox
 				note("Created on: `c(current_date)' at: `c(current_time)'") `leg'
 							
 				// Export to pdf
-				qui: gr export `"`root'/graphs/box`boxcount'.pdf"', as(pdf) replace
+				qui: gr export `"`root'/graphs/box-`cnt'-by-`ct'.pdf"', as(pdf) replace
 				
 				// Get LaTeX sanitized continuous variable name
 				texclean "`cnt'", r
@@ -102,15 +102,17 @@ prog def edabox
 				if "`keepgph'" != "" {
 				
 					// Define local macro with syntax to remove file
-					qui: gr save `"`root'/graphs/box`boxcount'.gph"', replace
+					qui: gr save `"`root'/graphs/box-`cnt'-by-`ct'.gph"', replace
 				
 				} // End IF Block to remove .gph files
 			
 				// Include in the LaTeX document
 				file write doc "\begin{figure}[h!]" _n
 				file write doc `"\caption{Box Plot of `ycap' by `xcap' \label{fig:box`boxcount'}}"' _n
-				file write doc `"\includegraphics[width=\textwidth]{box`boxcount'.pdf}"' _n
-				file write doc "\end{figure} \newpage\clearpage" _n
+				file write doc `"\includegraphics[width=\textwidth]{box-`cnt'-by-`ct'.pdf}"' _n
+				file write doc "\end{figure}" _n
+				file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+				file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 				
 			} // End loop over continuous variables for a given categorical variable
 			
@@ -179,7 +181,7 @@ prog def edabox
 					if _rc == 0 {
 					
 						// Export to pdf
-						qui: gr export `"`root'/graphs/box`bref'`boxcount'.pdf"', as(pdf) replace
+						qui: gr export `"`root'/graphs/box-`cnt'-by-`ct'And`bref'.pdf"', as(pdf) replace
 						
 						// Get LaTeX sanitized continuous variable name
 						texclean "`cnt'", r
@@ -209,15 +211,17 @@ prog def edabox
 						if "`keepgph'" != "" {
 						
 							// Define local macro with syntax to remove file
-							qui: gr save `"`root'/graphs/box`bref'`boxcount'.gph"', replace
+							qui: gr save `"`root'/graphs/box-`cnt'-by-`ct'And`bref'.gph"', replace
 						
 						} // End IF Block to remove .gph files
 					
 						// Include in the LaTeX document
 						file write doc "\begin{figure}[h!]" _n
 						file write doc `"\caption{Box Plot of `ycap' over `xcap' by `bref' \label{fig:box`bref'`boxcount'}}"' _n
-						file write doc `"\includegraphics[width=\textwidth]{box`bref'`boxcount'.pdf}"' _n
-						file write doc "\end{figure} \newpage\clearpage" _n
+						file write doc `"\includegraphics[width=\textwidth]{box-`cnt'-by-`ct'And`bref'.pdf}"' _n
+						file write doc "\end{figure}" _n
+						file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+						file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 						
 					} // End IF Block for successful return code	
 					
@@ -286,7 +290,7 @@ prog def edabox
 					if _rc == 0 {
 								
 						// Export to pdf
-						qui: gr export `"`root'/graphs/boxByGraph`boxcount'.pdf"', as(pdf) replace
+						qui: gr export `"`root'/graphs/box-`cnt'-by-`ct'And`bref'.pdf"', as(pdf) replace
 						
 						// Get LaTeX sanitized continuous variable name
 						texclean "`cnt'", r
@@ -316,15 +320,17 @@ prog def edabox
 						if "`keepgph'" != "" {
 						
 							// Define local macro with syntax to remove file
-							qui: gr save `"`root'/graphs/boxByGraph`boxcount'.gph"', replace
+							qui: gr save `"`root'/graphs/box-`cnt'-by-`ct'And`bref'.gph"', replace
 						
 						} // End IF Block to remove .gph files
 					
 						// Include in the LaTeX document
 						file write doc "\begin{figure}[h!]" _n
 						file write doc `"\caption{Box Plot of `ycap' over `xcap' by `blab' \label{fig:boxByGraph`boxcount'}}"' _n
-						file write doc `"\includegraphics[width=\textwidth]{boxByGraph`boxcount'.pdf}"' _n
-						file write doc "\end{figure} \newpage\clearpage" _n
+						file write doc `"\includegraphics[width=\textwidth]{box-`cnt'-by-`ct'And`bref'.pdf}"' _n
+						file write doc "\end{figure}" _n
+						file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+						file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 						
 					} // End IF Block to check return code
 						

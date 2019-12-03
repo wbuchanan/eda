@@ -7,13 +7,13 @@
 *     Creates heatmap GPH and PDF as well as entries in the LaTeX document     *
 *                                                                              *
 * Lines -                                                                      *
-*     157                                                                      *
+*     159                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edaheat
-*! v 0.0.0
-*! 28OCT2015
+*! v 0.0.3
+*! 22sep2019
 
 // Drop program from memory if already loaded
 cap prog drop edaheat
@@ -25,7 +25,7 @@ prog def edaheat, rclass
 	version 14
 	 
 	// Define the syntax structure of the program
-	syntax varlist(min=2) [if] [in], root(string asis) [ keepgph ]
+	syntax varlist(min=2) [if] [in], root(string asis) [ keepgph DEBug ]
 	
 	// Mark observations to use
 	marksample touse, strok novarlist
@@ -68,7 +68,7 @@ prog def edaheat, rclass
 		} // Emd Loop to get variable labels
 		
 		// Get pairwise correlation coefficient estimates
-		pwcorr `varlist'
+		qui: pwcorr `varlist'
 		
 		// Store the correlation matrix
 		mat edaheatmat = r(C)
@@ -92,7 +92,7 @@ prog def edaheat, rclass
 		loc maxn = `c(N)'
 		
 		// Normalize the data
-		reshape long edaheatmat, i(xvar) j(yvar)
+		qui: reshape long edaheatmat, i(xvar) j(yvar)
 		
 		// Loop over ids to assign variable labels
 		forv i = 1/`maxn' {
@@ -145,7 +145,9 @@ prog def edaheat, rclass
 		file write doc "\begin{figure}[h!]" _n
 		file write doc `"\caption{Correlation Heatmap \label{fig:heatmap}}"' _n
 		file write doc `"\includegraphics[width=\textwidth]{edaheatmap.pdf}"' _n
-		file write doc "\end{figure} \newpage\clearpage" _n
+		file write doc "\end{figure}" _n
+		file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+		file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 			
 		// Return the matrix used for the heat map from the function
 		ret mat edacorr = edaheatmat

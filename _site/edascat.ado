@@ -7,13 +7,13 @@
 *	  LaTeX document  														   *
 *                                                                              *
 * Lines -                                                                      *
-*     269                                                                      *
+*     289                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edascat
-*! v 0.0.0
-*! 28OCT2015
+*! v 0.0.2
+*! 22sep2019
 
 // Drop program from memory if already loaded
 cap prog drop edascat
@@ -34,7 +34,7 @@ prog def edascat
 										QFITCi QFITCi2(string asis)			 ///   
 										FPFITCi FPFITCi2(string asis)		 ///  
 										scheme(passthru) keepgph 			 ///   
-										byvars(varlist) byseq ]
+										byvars(varlist) byseq DEBug ]
 										
 	// Mark only the observations to use
 	marksample touse, strok novarlist
@@ -46,7 +46,7 @@ prog def edascat
 		file write doc "\subsubsection{Scatterplots}" _n
 
 		// Generate list of all pairwise combination of continuous variables
-		tuples `varlist', asis min(2) max(2)		
+		tuples `varlist', asis min(2) max(2) cvp	
 				
 		// Generate scatter plots for all pairwise combinations of continuous variables
 		forv i = 1/`ntuples' {
@@ -239,13 +239,13 @@ prog def edascat
 			note("Created on: `c(current_date)' at: `c(current_time)'") 
 			
 			// Export the scatterplot as a .png file
-			qui: gr export `"`root'/graphs/scatter`i'.pdf"', as(pdf) replace
+			qui: gr export `"`root'/graphs/scatter-`y'-`x'.pdf"', as(pdf) replace
 			
 			// Check if user wants to keep the GPH files
 			if "`keepgph'" != "" {
 			
 				// Define local macro with syntax to remove file
-				qui: gr save `"`root'/graphs/scatter`i'.gph"', replace
+				qui: gr save `"`root'/graphs/scatter-`y'-`x'.gph"', replace
 				
 			} // End IF Block to remove .gph files
 
@@ -264,8 +264,10 @@ prog def edascat
 			// Add the scatterplot to the LaTeX document
 			file write doc "\begin{figure}[h!]" _n
 			file write doc `"\caption{Scatterplot of `yti' \& `xti' \label{fig:scatter`i'}}"' _n
-			file write doc `"\includegraphics[width=\textwidth]{scatter`i'.pdf}"' _n
-			file write doc "\end{figure} \newpage\clearpage" _n
+			file write doc `"\includegraphics[width=\textwidth]{scatter-`y'-`x'.pdf}"' _n
+			file write doc "\end{figure}" _n
+			file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+			file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 			
 		} // End Loop over scatter plot permutations
 	

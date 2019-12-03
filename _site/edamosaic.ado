@@ -7,13 +7,13 @@
 *	  the LaTeX document  													   *
 *                                                                              *
 * Lines -                                                                      *
-*     93                                                                       *
+*     113                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edamosaic
-*! v 0.0.0
-*! 28OCT2015
+*! v 0.0.2
+*! 22sep2019
 
 // Drop program from memory if already loaded
 cap prog drop edamosaic
@@ -26,7 +26,8 @@ prog def edamosaic
 	
 	// Syntax structure for edabar subroutine
 	syntax varlist(min=2) [if] [in], root(string asis)						 ///   
-			[ scheme(passthru) keepgph PERCent MISSing byvars(varlist) byseq ]
+			[ scheme(passthru) keepgph PERCent MISSing byvars(varlist) byseq ///   
+			DEBug ]
 			
 	// Mark only the observations to use
 	marksample touse, strok novarlist
@@ -38,7 +39,7 @@ prog def edamosaic
 		file write doc "\subsubsection{Mosaic Plots}" _n
 
 		// Generate list of all pairwise combination of continuous variables
-		tuples `varlist', asis min(2) max(2)		
+		tuples `varlist', asis min(2) max(2) cvp
 				
 		// Generate scatter plots for all pairwise combinations of continuous variables
 		forv i = 1/`ntuples' {
@@ -62,7 +63,7 @@ prog def edamosaic
 			`: char `x'[title]') `scheme'  
 			
 			// Export to pdf
-			qui: gr export `"`root'/graphs/mosaic`i'.pdf"', as(pdf) replace
+			qui: gr export `"`root'/graphs/mosaic-`y'-`x'.pdf"', as(pdf) replace
 			
 			// Get a LaTeX prepped version of the y var label
 			texclean `"`: var l `y''"'
@@ -80,15 +81,17 @@ prog def edamosaic
 			if "`keepgph'" != "" {
 			
 				// Define local macro with syntax to remove file
-				qui: gr save `"`root'/graphs/mosaic`i'.gph"', replace
+				qui: gr save `"`root'/graphs/mosaic-`y'-`x'.gph"', replace
 				
 			} // End IF Block to remove .gph files
 
 			// Include in the LaTeX document
 			file write doc "\begin{figure}[h!]" _n
 			file write doc `"\caption{Mosaic Plots of `yax' by `xax' \label{fig:mosaic`i'}}"' _n
-			file write doc `"\includegraphics[width=\textwidth]{mosaic`i'.pdf}"' _n
-			file write doc "\end{figure} \newpage\clearpage" _n
+			file write doc `"\includegraphics[width=\textwidth]{mosaic-`y'-`x'.pdf}"' _n
+			file write doc "\end{figure}" _n
+			file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+			file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 						
 		} // End loop over categorical by categorical tuples
 		

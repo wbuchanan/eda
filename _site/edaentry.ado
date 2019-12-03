@@ -1,3 +1,17 @@
+/*******************************************************************************
+
+	This is completely experimental and not intended for distribution with 
+	eda at this time.  It is an attempt at refactoring some of the functionality
+	of the internals in eda to maintain LaTeX entries for specific captions, 
+	titling, and reference entries outside of individual sub routines and/or 
+	the main program.
+
+*******************************************************************************/
+
+*! edaentry
+*! v 0.0.0
+*! 07JUL2018
+
 cap prog drop edaentry
 
 prog def edaentry
@@ -181,4 +195,5 @@ prog def edaentry
 	} // End ELSE Block for other cases
 	
 	
-	
+end
+

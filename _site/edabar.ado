@@ -6,13 +6,13 @@
 *     Creates bar graph GPH and PDF as well as entries in the LaTeX document   *
 *                                                                              *
 * Lines -                                                                      *
-*     224                                                                      *
+*     230                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edabar
-*! v 0.0.1
-*! 10NOV2015
+*! v 0.0.2
+*! 22sep2019
 
 // Drop program from memory if already loaded
 cap prog drop edabar
@@ -27,8 +27,8 @@ prog def edabar
 	syntax varlist(min=1) [if] [in], 	BARType(string asis)				 /// 
 										root(string asis)					 ///   
 										[BARGRAphopts(string asis)			 ///   
-										scheme(passthru)					 ///   
-										keepgph	MISSing byvars(varlist) byseq ]
+										scheme(passthru) byseq				 ///   
+										keepgph	MISSing byvars(varlist) DEBug ]
 										
 	// Mark only the observations to use
 	marksample touse, strok novarlist
@@ -69,7 +69,9 @@ prog def edabar
 			file write doc "\begin{figure}[h!]" _n
 			file write doc `"\caption{`cap' \label{fig:bar`v'}}"' _n
 			file write doc `"\includegraphics[width=\textwidth]{bar`v'.pdf}"' _n
-			file write doc "\end{figure} \newpage\clearpage" _n
+			file write doc "\end{figure}" _n
+			file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+			file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 
 			// Check if user wants to keep the GPH files
 			if "`keepgph'" != "" {
@@ -141,7 +143,9 @@ prog def edabar
 					file write doc "\begin{figure}[h!]" _n
 					file write doc `"\caption{`cap' \label{fig:bar`v'By`bref'}}"' _n
 					file write doc `"\includegraphics[width=\textwidth]{bar`v'By`bref'.pdf}"' _n
-					file write doc "\end{figure} \newpage\clearpage" _n
+					file write doc "\end{figure}" _n
+					file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+					file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 
 					// Check if user wants to keep the GPH files
 					if "`keepgph'" != "" {
@@ -204,7 +208,9 @@ prog def edabar
 				file write doc "\begin{figure}[h!]" _n
 				file write doc `"\caption{`cap' \label{fig:bar`v'ByGraph}}"' _n
 				file write doc `"\includegraphics[width=\textwidth]{bar`v'ByGraph.pdf}"' _n
-				file write doc "\end{figure} \newpage\clearpage" _n
+				file write doc "\end{figure}" _n
+				file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+				file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 
 				// Check if user wants to keep the GPH files
 				if "`keepgph'" != "" {

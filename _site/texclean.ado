@@ -9,13 +9,13 @@
 *     r(clntex) - A LaTeX sanitized string									   *
 *                                                                              *
 * Lines -                                                                      *
-*     103                                                                      *
+*     101                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! texclean
-*! v 0.0.0
-*! 27OCT2015
+*! v 0.0.2
+*! 03may2019
 
 // Drop program from memory if previously loaded
 cap prog drop texclean
@@ -52,6 +52,9 @@ prog def texclean, rclass
 		// Otherwise
 		else {
 
+			// Handle \ character
+			loc cln `: subinstr loc cln "\" "\\", all'
+			
 			// Handle # character
 			loc cln `: subinstr loc cln "#" "\#", all'
 
@@ -72,9 +75,6 @@ prog def texclean, rclass
 			
 			// Handle ^ character
 			loc cln `: subinstr loc cln "^" "\textasciicircum{}", all'
-			
-			// Handle \ character
-			loc cln `: subinstr loc cln "\" "\textbackslash{}", all'
 			
 			// Handle { character
 			loc cln `: subinstr loc cln `"{"' `"\{"', all'

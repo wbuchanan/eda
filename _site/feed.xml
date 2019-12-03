@@ -5,13 +5,13 @@
     <description>GitHub Pages site for the Stata package eda</description>
     <link>https://wbuchanan.github.io/eda/</link>
     <atom:link href="https://wbuchanan.github.io/eda/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 20 Feb 2017 15:55:42 -0500</pubDate>
-    <lastBuildDate>Mon, 20 Feb 2017 15:55:42 -0500</lastBuildDate>
-    <generator>Jekyll v3.3.1</generator>
+    <pubDate>Tue, 03 Dec 2019 12:55:30 -0500</pubDate>
+    <lastBuildDate>Tue, 03 Dec 2019 12:55:30 -0500</lastBuildDate>
+    <generator>Jekyll v3.8.5</generator>
     
       <item>
         <title>EDA Project Page</title>
-        <description>&lt;p&gt;Started building out project page for &lt;code class=&quot;highlighter-rouge&quot;&gt;eda&lt;/code&gt;.&lt;/p&gt;
+        <description>&lt;p&gt;Started building out project page for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;eda&lt;/code&gt;.&lt;/p&gt;
 </description>
         <pubDate>Tue, 14 Jun 2016 02:22:00 -0400</pubDate>
         <link>https://wbuchanan.github.io/eda/post/2016/06/14/eda-project-page.html</link>
