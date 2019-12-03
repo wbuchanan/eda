@@ -31,7 +31,7 @@ tables used in Exploratory Data Analyses ({help eda##edarefs:Tukey (1977)}. {p_e
 {cmd:lfitci}[({it:string})] {cmd:qfitci}[({it:string})]
 {cmd:fpfitci}[({it:string})] {cmdab:nobox:plots} {cmd:nomosaic} 
 {cmdab:noheat:map} {cmdab:nobubble:plots} {cmdab:weight:type(}{it:int}{opt )}
-{cmdab:comp:ile} {cmdab:pdfl:atex(}{it:string}{opt )} 
+{cmdab:comp:ile} {cmdab:pdfl:atex(}{it:string}{opt )} {cmdab:reb:uild}
 {cmdab:byg:raphs(}{it:string}{opt )} {cmdab:byv:ars(}{it:string}{opt )} {cmdab:bys:eq}
 ]
 
@@ -132,6 +132,10 @@ use the value returned in the macro c(username).{p_end}
 to the LaTeX file Title page.  If no value is specified the program will use the 
 name of the file currently loaded in memory while the program is being executed. {p_end}
 
+{p 8 8 8}{cmdab:reb:uild} is an optional argument that is used to pass the {cmdab:reb:uild}
+argument to an underlying call to {help dirfile} used by eda to check and build the 
+directory where the results will be stored if necessary.  If the location exists and contains 
+files you should use the {cmd rebuild} option.{p_end} 
 
 
 {marker edaclassify}{dlgtab 8 8:Variable Classification}{break}

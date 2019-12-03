@@ -6,13 +6,13 @@
 *     Creates pie chart GPH and PDF as well as entries in the LaTeX document   *
 *                                                                              *
 * Lines -                                                                      *
-*     98                                                                       *
+*     100                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edapie
-*! v 0.0.1
-*! 17jul2018
+*! v 0.0.2
+*! 22sep2019
 
 // Drop program from memory if already loaded
 cap prog drop edapie
@@ -26,8 +26,8 @@ prog def edapie
 	// Syntax structure for edabar subroutine
 	syntax varlist(min=1) [if] [in], 	root(string asis)					 ///   
 										[PIECHartopts(string asis)			 ///   
-										scheme(passthru)					 ///   
-										keepgph	MISSing byvars(varlist) byseq ]
+										scheme(passthru) byseq				 ///   
+										keepgph	MISSing byvars(varlist) DEBug ]
 										
 	// Mark only the observations to use
 	marksample touse, strok novarlist
@@ -76,7 +76,9 @@ prog def edapie
 			file write doc "\begin{figure}[h!]" _n
 			file write doc `"\caption{Pie Chart of `vlab' \label{fig:pie`vref'}}"' _n
 			file write doc `"\includegraphics[width=\textwidth]{pie`v'.pdf}"' _n
-			file write doc "\end{figure} \newpage\clearpage" _n
+			file write doc "\end{figure}" _n
+			file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+			file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 
 		} // End loop over categorical variables
 		

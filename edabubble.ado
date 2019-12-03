@@ -12,8 +12,8 @@
 ********************************************************************************
 		
 *! edabubble
-*! v 0.0.2
-*! 01may2019
+*! v 0.0.3
+*! 22sep2019
 
 // Drop program from memory if already loaded
 cap prog drop edabubble
@@ -26,8 +26,8 @@ prog def edabubble
 	
 	// Syntax structure for edabar subroutine
 	syntax varlist(min=3) [if] [in], 	root(string asis)					 ///   
-										[ scheme(passthru) keepgph			 ///   
-										WEIGHTtype(int 0) byvars(varlist) byseq ]
+										[ scheme(passthru) keepgph byseq	 ///   
+										WEIGHTtype(int 0) byvars(varlist) DEBug ]
 										
 	// Mark only the observations to use
 	marksample touse, strok novarlist
@@ -217,7 +217,9 @@ prog def edabubble
 			file write doc "\begin{figure}[h!]" _n
 			file write doc `"\caption{Bubble Plot of `yref', `xref', and `zref' \label{fig:bubble`i'}}"' _n
 			file write doc `"\includegraphics[width=\textwidth]{bubble-`y'-`x'.pdf}"' _n
-			file write doc "\end{figure} \newpage\clearpage" _n
+			file write doc "\end{figure}" _n
+			file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+			file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 			
 		} // End Loop over bubble plot permutations
 		
@@ -318,7 +320,9 @@ prog def edabubble
 					file write doc "\begin{figure}[h!]" _n
 					file write doc `"\caption{Bubble Plot of `yref', `xref', and `zref' by `subsectionti' \label{fig:`bref'bubble`i'}}"' _n
 					file write doc `"\includegraphics[width=\textwidth]{bubble-`y'-`x'-By`bref'.pdf}"' _n
-					file write doc "\end{figure} \newpage\clearpage" _n
+					file write doc "\end{figure}" _n
+					file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+					file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 
 				} // End IF Block for return code check	
 					
@@ -411,7 +415,9 @@ prog def edabubble
 				file write doc "\begin{figure}[h!]" _n
 				file write doc `"\caption{Bubble Plot of `yref', `xref', and `zref' \label{fig:bubble`i'ByGraph}}"' _n
 				file write doc `"\includegraphics[width=\textwidth]{bubble-`y'-`x'-ByGraph.pdf}"' _n
-				file write doc "\end{figure} \newpage\clearpage" _n
+				file write doc "\end{figure}" _n
+				file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+				file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 				
 			} // End Loop over bubble plot permutations
 			

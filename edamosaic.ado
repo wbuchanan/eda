@@ -7,13 +7,13 @@
 *	  the LaTeX document  													   *
 *                                                                              *
 * Lines -                                                                      *
-*     110                                                                      *
+*     113                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edamosaic
-*! v 0.0.1
-*! 01may2019
+*! v 0.0.2
+*! 22sep2019
 
 // Drop program from memory if already loaded
 cap prog drop edamosaic
@@ -26,7 +26,8 @@ prog def edamosaic
 	
 	// Syntax structure for edabar subroutine
 	syntax varlist(min=2) [if] [in], root(string asis)						 ///   
-			[ scheme(passthru) keepgph PERCent MISSing byvars(varlist) byseq ]
+			[ scheme(passthru) keepgph PERCent MISSing byvars(varlist) byseq ///   
+			DEBug ]
 			
 	// Mark only the observations to use
 	marksample touse, strok novarlist
@@ -88,7 +89,9 @@ prog def edamosaic
 			file write doc "\begin{figure}[h!]" _n
 			file write doc `"\caption{Mosaic Plots of `yax' by `xax' \label{fig:mosaic`i'}}"' _n
 			file write doc `"\includegraphics[width=\textwidth]{mosaic-`y'-`x'.pdf}"' _n
-			file write doc "\end{figure} \newpage\clearpage" _n
+			file write doc "\end{figure}" _n
+			file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+			file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 						
 		} // End loop over categorical by categorical tuples
 		
