@@ -7,13 +7,13 @@
 *     Creates heatmap GPH and PDF as well as entries in the LaTeX document     *
 *                                                                              *
 * Lines -                                                                      *
-*     157                                                                      *
+*     159                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edaheat
-*! v 0.0.2
-*! 17jul2018
+*! v 0.0.3
+*! 22sep2019
 
 // Drop program from memory if already loaded
 cap prog drop edaheat
@@ -25,7 +25,7 @@ prog def edaheat, rclass
 	version 14
 	 
 	// Define the syntax structure of the program
-	syntax varlist(min=2) [if] [in], root(string asis) [ keepgph ]
+	syntax varlist(min=2) [if] [in], root(string asis) [ keepgph DEBug ]
 	
 	// Mark observations to use
 	marksample touse, strok novarlist
@@ -145,7 +145,9 @@ prog def edaheat, rclass
 		file write doc "\begin{figure}[h!]" _n
 		file write doc `"\caption{Correlation Heatmap \label{fig:heatmap}}"' _n
 		file write doc `"\includegraphics[width=\textwidth]{edaheatmap.pdf}"' _n
-		file write doc "\end{figure} \newpage\clearpage" _n
+		file write doc "\end{figure}" _n
+		file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+		file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 			
 		// Return the matrix used for the heat map from the function
 		ret mat edacorr = edaheatmat

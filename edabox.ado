@@ -7,13 +7,13 @@
 *	  LaTeX document  														   *
 *                                                                              *
 * Lines -                                                                      *
-*     340                                                                      *
+*     346                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edabox
-*! v 0.0.2
-*! 03may2019
+*! v 0.0.3
+*! 14oct2019
 
 // Drop program from memory if already loaded
 cap prog drop edabox
@@ -25,8 +25,8 @@ prog def edabox
 	version 14
 	
 	// Syntax structure for edabar subroutine
-	syntax [if] [in], root(string asis)	cat(varlist) cont(varlist)			 ///   
-					  [ scheme(passthru) keepgph MISSing byvars(varlist) byseq ]
+	syntax [if] [in], root(string asis)	cat(varlist) cont(varlist) [ byseq	 ///   
+					  scheme(passthru) keepgph MISSing byvars(varlist) DEBug ]
 										
 	// Mark only the observations to use
 	marksample touse, strok novarlist
@@ -110,7 +110,9 @@ prog def edabox
 				file write doc "\begin{figure}[h!]" _n
 				file write doc `"\caption{Box Plot of `ycap' by `xcap' \label{fig:box`boxcount'}}"' _n
 				file write doc `"\includegraphics[width=\textwidth]{box-`cnt'-by-`ct'.pdf}"' _n
-				file write doc "\end{figure} \newpage\clearpage" _n
+				file write doc "\end{figure}" _n
+				file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+				file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 				
 			} // End loop over continuous variables for a given categorical variable
 			
@@ -217,7 +219,9 @@ prog def edabox
 						file write doc "\begin{figure}[h!]" _n
 						file write doc `"\caption{Box Plot of `ycap' over `xcap' by `bref' \label{fig:box`bref'`boxcount'}}"' _n
 						file write doc `"\includegraphics[width=\textwidth]{box-`cnt'-by-`ct'And`bref'.pdf}"' _n
-						file write doc "\end{figure} \newpage\clearpage" _n
+						file write doc "\end{figure}" _n
+						file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+						file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 						
 					} // End IF Block for successful return code	
 					
@@ -324,7 +328,9 @@ prog def edabox
 						file write doc "\begin{figure}[h!]" _n
 						file write doc `"\caption{Box Plot of `ycap' over `xcap' by `blab' \label{fig:boxByGraph`boxcount'}}"' _n
 						file write doc `"\includegraphics[width=\textwidth]{box-`cnt'-by-`ct'And`bref'.pdf}"' _n
-						file write doc "\end{figure} \newpage\clearpage" _n
+						file write doc "\end{figure}" _n
+						file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+						file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 						
 					} // End IF Block to check return code
 						

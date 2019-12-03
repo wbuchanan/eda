@@ -8,13 +8,13 @@
 *     r(cont) - list of continuous variables								   *
 *                                                                              *
 * Lines -                                                                      *
-*     342                                                                      *
+*     357                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! catorcont
-*! v 0.0.1
-*! 17jul2018
+*! v 0.0.3
+*! 22sep2019
 
 // Drop program from memory if already defined
 cap prog drop catorcont
@@ -34,7 +34,7 @@ prog def catorcont, rclass
 	// Create the macros that will store the names of the variables
 	loc continuous
 	loc categorical
-
+	
 	// If user provides minimum and maximum distinct values
 	if `"`catvars'"' == "" & `"`contvars'"' == "" {
 		
@@ -260,11 +260,26 @@ prog def catorcont, rclass
 	
 	} // End ELSEIF Block for non-missing categorical variables and missing cont
 	
+	// Get a list of any potential time/timeseries variables
+	qui: ds, has(format %t*)
+	
+	// Store the variables in a new macro
+	loc tsvars `r(varlist)'
+	
+	// Remove the tsvars from the categorical variable list
+	loc categorical : list categorical - tsvars
+	
+	// Remove the tsvars from the continuous variable list
+	loc continuous : list continuous - tsvars
+	
 	// Return the categorical variable list
 	ret loc cat `categorical'
 	
 	// Return the continuous variable list
 	ret loc cont `continuous'
+	
+	// Return the time variables in a separate macro
+	ret loc timevars `tsvars'
 	
 // End of program
 end

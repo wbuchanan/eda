@@ -6,13 +6,13 @@
 *     Creates pie chart GPH and PDF as well as entries in the LaTeX document   *
 *                                                                              *
 * Lines -                                                                      *
-*     515                                                                      *
+*     521                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edahist
-*! v 0.0.2
-*! 17jul2018
+*! v 0.0.3
+*! 22sep2019
 
 // Drop program from memory if already loaded
 cap prog drop edahist
@@ -31,7 +31,7 @@ prog def edahist
 										FIVENUMsum 							 ///  
 										FNSOpts(string asis)				 ///
 										scheme(passthru)					 ///   
-										keepgph	byvars(varlist) byseq]
+										keepgph	byvars(varlist) byseq DEBug]
 										
 	// Mark only the observations to use
 	marksample touse, strok novarlist
@@ -176,7 +176,9 @@ prog def edahist
 			file write doc "\begin{figure}[h!]" _n
 			file write doc `"\caption{Histogram of `vlab' \label{fig:histo`vref'}}"' _n
 			file write doc `"\includegraphics[width=\textwidth]{histo`v'.pdf}"' _n
-			file write doc "\end{figure} \newpage\clearpage" _n
+			file write doc "\end{figure}" _n
+			file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+			file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 			
 		} // End loop over continuous variables
 		
@@ -341,7 +343,9 @@ prog def edahist
 					file write doc "\begin{figure}[h!]" _n
 					file write doc `"\caption{Histogram of `vlab' by `subsectionti' \label{fig:histo`vref'By`bref'}}"' _n
 					file write doc `"\includegraphics[width=\textwidth]{histo`v'By`bref'.pdf}"' _n
-					file write doc "\end{figure} \newpage\clearpage" _n
+					file write doc "\end{figure}" _n
+					file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+					file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 					
 				} // End loop over continuous variables
 
@@ -503,7 +507,9 @@ prog def edahist
 				file write doc "\begin{figure}[h!]" _n
 				file write doc `"\caption{Histogram of `vlab' by `bvars' \label{fig:histo`vref'ByGraphs}}"' _n
 				file write doc `"\includegraphics[width=\textwidth]{histo`v'ByGraphs.pdf}"' _n
-				file write doc "\end{figure} \newpage\clearpage" _n
+				file write doc "\end{figure}" _n
+				file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+				file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 				
 			} // End loop over continuous variables
 

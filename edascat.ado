@@ -7,13 +7,13 @@
 *	  LaTeX document  														   *
 *                                                                              *
 * Lines -                                                                      *
-*     287                                                                      *
+*     289                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edascat
-*! v 0.0.1
-*! 01may2019
+*! v 0.0.2
+*! 22sep2019
 
 // Drop program from memory if already loaded
 cap prog drop edascat
@@ -34,7 +34,7 @@ prog def edascat
 										QFITCi QFITCi2(string asis)			 ///   
 										FPFITCi FPFITCi2(string asis)		 ///  
 										scheme(passthru) keepgph 			 ///   
-										byvars(varlist) byseq ]
+										byvars(varlist) byseq DEBug ]
 										
 	// Mark only the observations to use
 	marksample touse, strok novarlist
@@ -265,7 +265,9 @@ prog def edascat
 			file write doc "\begin{figure}[h!]" _n
 			file write doc `"\caption{Scatterplot of `yti' \& `xti' \label{fig:scatter`i'}}"' _n
 			file write doc `"\includegraphics[width=\textwidth]{scatter-`y'-`x'.pdf}"' _n
-			file write doc "\end{figure} \newpage\clearpage" _n
+			file write doc "\end{figure}" _n
+			file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+			file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 			
 		} // End Loop over scatter plot permutations
 	
