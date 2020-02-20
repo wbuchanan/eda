@@ -12,8 +12,8 @@
 ********************************************************************************
 		
 *! eda
-*! v 0.0.9
-*! 03dec2019
+*! v 0.0.10
+*! 17feb2020
 
 // If you don't have the tuples program installed you may want to do that
 // ssc inst tuples, replace
@@ -255,6 +255,8 @@ prog def eda
 		file write doc "\usepackage[hidelinks]{hyperref}" _n
 		file write doc "\usepackage{longtable}" _n
 		file write doc "\usepackage[toc,page,titletoc]{appendix}" _n
+		file write doc "\usepackage{float}" _n
+		file write doc "\restylefloat{table}" _n
 		file write doc "\DeclareGraphicsExtensions{.pdf, .png}" _n
 		file write doc `"\graphicspath{{"`root'/graphs/"}}"' _n
 		file write doc `"\title{Exploratory Data Analysis of: \\ \normalsize{`reportname'}}"'  _n
@@ -619,7 +621,7 @@ prog def eda
 				coll("Frequency" "Percentage") ti(`"Distribution of `: var l `v''"')
 				
 				// Add the table to the LaTeX document
-				file write doc "\begin{table}" _n
+				file write doc "\begin{table}[H]" _n
 				file write doc `"\input{"`root'/tables/tab`v'"}"' _n
 				file write doc "\end{table}" _n
 				file write doc "\hyperlink{tot}{Back to List of Tables}" _n
@@ -713,7 +715,7 @@ prog def eda
 				
 
 				// Add the table to the LaTeX document
-				file write doc "\begin{table}" _n
+				file write doc "\begin{table}[H]" _n
 				file write doc `"\input{"`root'/tables/tab-`y'-`x'"}"' _n
 				file write doc "\end{table}" _n
 				file write doc "\hyperlink{tot}{Back to List of Tables}" _n
@@ -783,17 +785,17 @@ prog def eda
 			// esttab . using correlationtable.tex, not unstack compress noobs
 
 			// Add both tables to LaTeX document
-			file write doc "\begin{table}" _n
+			file write doc "\begin{table}[H]" _n
 			file write doc `"\input{"`root'/tables/descriptives"}"' _n
 			file write doc "\end{table}" _n
 			file write doc "\hyperlink{tot}{Back to List of Tables}" _n
 			file write doc "\hyperlink{toc}{Back to Table of Contents}" _n
-			file write doc "\begin{table}" _n
+			file write doc "\begin{table}[H]" _n
 			file write doc `"\input{"`root'/tables/higherorder"}"' _n
 			file write doc "\end{table}" _n
 			file write doc "\hyperlink{tot}{Back to List of Tables}" _n
 			file write doc "\hyperlink{toc}{Back to Table of Contents}" _n
-			file write doc "\begin{table}" _n
+			file write doc "\begin{table}[H]" _n
 			file write doc `"\input{"`root'/tables/orderstats"}"' _n
 			file write doc "\end{table}" _n
 			file write doc "\hyperlink{tot}{Back to List of Tables}" _n
@@ -845,7 +847,7 @@ prog def eda
 				ti("Averages by groups of `: var l `cat''")
 				
 				// Add table to LaTeX document
-				file write doc "\begin{table}" _n
+				file write doc "\begin{table}[H]" _n
 				file write doc `"\input{"`root'/tables/condmean`cat'"}"' _n
 				file write doc "\end{table}" _n
 				file write doc "\hyperlink{tot}{Back to List of Tables}" _n
@@ -861,7 +863,7 @@ prog def eda
 				ti("Standard Deviations by groups of `: var l `cat''")
 
 				// Add table to LaTeX document
-				file write doc "\begin{table}" _n
+				file write doc "\begin{table}[H]" _n
 				file write doc `"\input{"`root'/tables/condsd`cat'"}"' _n
 				file write doc "\end{table}" _n
 				file write doc "\hyperlink{tot}{Back to List of Tables}" _n

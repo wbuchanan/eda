@@ -7,13 +7,13 @@
 *	  LaTeX document  														   *
 *                                                                              *
 * Lines -                                                                      *
-*     346                                                                      *
+*     355                                                                      *
 *                                                                              *
 ********************************************************************************
 		
 *! edabox
-*! v 0.0.3
-*! 14oct2019
+*! v 0.0.4
+*! 18feb2020
 
 // Drop program from memory if already loaded
 cap prog drop edabox
@@ -67,52 +67,59 @@ prog def edabox
 				loc boxcount = `boxcount' + 1
 				
 				// Generate Box plot
-				gr box `cnt' if `touse' `obexclude', over(`ct') asyvars	`scheme' yti("")	 ///   
-				ti(`: char `cnt'[title]' "vs" `: char `ct'[title]')	`missing'	 ///  
-				note("Created on: `c(current_date)' at: `c(current_time)'") `leg'
+				cap gr box `cnt' if `touse' `obexclude', over(`ct') asyvars  ///   
+				`scheme' yti("") `missing' `leg' 							 ///   
+				ti(`: char `cnt'[title]' "vs" `: char `ct'[title]')			 ///  
+				note("Created on: `c(current_date)' at: `c(current_time)'") 
 							
-				// Export to pdf
-				qui: gr export `"`root'/graphs/box-`cnt'-by-`ct'.pdf"', as(pdf) replace
+				// If graph command produced a result
+				if _rc == 0 {
 				
-				// Get LaTeX sanitized continuous variable name
-				texclean "`cnt'", r
-				
-				// Store cleaned name in macro y
-				loc y `r(clntex)'
-				
-				// Get LaTeX sanitized categorical variable name
-				texclean "`ct'", r
-				
-				// Store cleaned name in macro x
-				loc x `r(clntex)'
-				
-				// Get the y variable title string
-				texclean `"`: var l `cnt''"'
-				
-				// Store the string
-				loc ycap `r(clntex)'
-				
-				// Get the y variable title string
-				texclean `"`: var l `ct''"'
-				
-				// Store the string
-				loc xcap `r(clntex)'
+					// Export to pdf
+					qui: gr export `"`root'/graphs/box-`cnt'-by-`ct'.pdf"',	 ///   
+					as(pdf) replace
+					
+					// Get LaTeX sanitized continuous variable name
+					texclean "`cnt'", r
+					
+					// Store cleaned name in macro y
+					loc y `r(clntex)'
+					
+					// Get LaTeX sanitized categorical variable name
+					texclean "`ct'", r
+					
+					// Store cleaned name in macro x
+					loc x `r(clntex)'
+					
+					// Get the y variable title string
+					texclean `"`: var l `cnt''"'
+					
+					// Store the string
+					loc ycap `r(clntex)'
+					
+					// Get the y variable title string
+					texclean `"`: var l `ct''"'
+					
+					// Store the string
+					loc xcap `r(clntex)'
 
-				// Check if user wants to keep the GPH files
-				if "`keepgph'" != "" {
+					// Check if user wants to keep the GPH files
+					if "`keepgph'" != "" {
+					
+						// Define local macro with syntax to remove file
+						qui: gr save `"`root'/graphs/box-`cnt'-by-`ct'.gph"', replace
+					
+					} // End IF Block to remove .gph files
 				
-					// Define local macro with syntax to remove file
-					qui: gr save `"`root'/graphs/box-`cnt'-by-`ct'.gph"', replace
+					// Include in the LaTeX document
+					file write doc "\begin{figure}[h!]" _n
+					file write doc `"\caption{Box Plot of `ycap' by `xcap' \label{fig:box`boxcount'}}"' _n
+					file write doc `"\includegraphics[width=\textwidth]{box-`cnt'-by-`ct'.pdf}"' _n
+					file write doc "\end{figure}" _n
+					file write doc "\hyperlink{tof}{Back to List of Figures}" _n
+					file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
 				
-				} // End IF Block to remove .gph files
-			
-				// Include in the LaTeX document
-				file write doc "\begin{figure}[h!]" _n
-				file write doc `"\caption{Box Plot of `ycap' by `xcap' \label{fig:box`boxcount'}}"' _n
-				file write doc `"\includegraphics[width=\textwidth]{box-`cnt'-by-`ct'.pdf}"' _n
-				file write doc "\end{figure}" _n
-				file write doc "\hyperlink{tof}{Back to List of Figures}" _n
-				file write doc "\hyperlink{toc}{Back to Table of Contents}\newpage\clearpage" _n
+				} // End IF Block for successful graph call
 				
 			} // End loop over continuous variables for a given categorical variable
 			
