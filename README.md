@@ -46,7 +46,7 @@ You can install these dependencies using:
 ssc install tuples
 ssc install spineplot
 ssc install estout
-ssc install brewscheme
+net install brewscheme, from("https://wbuchanan.github.io/brewscheme")
 ```
 
 
